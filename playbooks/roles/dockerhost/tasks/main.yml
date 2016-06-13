@@ -1,0 +1,105 @@
+---
+# file: roles/dockerhost/tasks/main.yml
+# These are task definitions for configuring machines to host 
+# Docker containers.
+# See: https://docs.docker.com/engine/installation/linux/ubuntulinux/
+#
+- name: Updating/upgrading apt package information.
+  apt: update_cache=yes upgrade=dist cache_valid_time={{cache_horizon}}
+  when: is_apt_pkg_mgr
+  ignore_errors: yes
+  
+- name: Install Docker dependencies.
+  apt: pkg={{item}} state=latest
+  with_items: [apt-transport-https, ca-certificates]
+  when: is_linux
+  
+- name: Add the key for the Docker repository.
+  apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 
+           id=58118E89F3A912897C070ADBF76221572C52609D
+  ignore_errors: yes
+  when: is_apt_pkg_mgr
+ 
+- name: Add the Docker PPA (Ubuntu 15.10).
+  apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-wily main' 
+                  state=present
+  when: is_ubuntu_15_10
+  ignore_errors: yes
+   
+- name: Add the Docker PPA (Ubuntu 16.04).
+  apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-xenial main' 
+                  state=present
+  when: is_ubuntu_16_04
+  ignore_errors: yes
+  
+- name: Updating/upgrading apt package information.
+  apt: update_cache=yes upgrade=dist 
+       cache_valid_time={{cache_horizon}} 
+       allow_unauthenticated=yes
+  when: is_apt_pkg_mgr
+  ignore_errors: yes
+
+- name: Purge any old Docker installations if necessary.
+  apt: pkg=lxc-docker state=absent
+  when: is_apt_pkg_mgr
+  ignore_errors: yes
+
+- name: Install AUFS filesystem support.
+  apt: pkg=linux-image-extra-{{ansible_kernel}} state=latest
+  when: is_apt_pkg_mgr
+  ignore_errors: yes
+
+- name: Install Docker.
+  apt: pkg=docker-engine state=latest
+  when: is_apt_pkg_mgr
+
+- name: Ensure that the Docker systemctl drop-in directory "{{dockerhost_systemctl_dropin_dir}}" exists.
+  file: path={{dockerhost_systemctl_dropin_dir}}
+        state=directory
+        owner=root group=root mode=755
+  when: is_ubuntu
+  tags: [docker, dockertcp]
+
+- name: Enable the Docker Daemon to communicate using tcp.
+  template: src=dockertcp.conf.j2
+            dest={{dockerhost_systemctl_dropin_dir}}/dockertcp.conf
+            owner=root group=root mode=644
+  register: docker_config
+  notify: Restart Docker
+  when: is_ubuntu
+  tags: [docker, dockertcp]
+
+- name: Reload Docker daemon configuration if necessary.
+  command: systemctl daemon-reload
+  when: docker_config.changed
+  tags: [docker, dockertcp]
+
+- name: Enable the Docker daemon to start on boot.
+  service: name=docker enabled=yes
+  when: is_linux
+  tags: [docker]
+  
+- name: Make sure that the Docker daemon is started.
+  service: name=docker state=started
+  when: is_linux
+  tags: [docker]  
+  
+# User/Groups
+#-----------------------------------------------------------
+
+- name: Create the "docker" group if necessary.
+  group: name=docker
+         state=present
+  when: is_linux
+
+- name: Add the user "{{user}}" to the "docker" group.
+  user: name={{user}} groups=docker append=yes
+  when: is_linux
+  
+- name: Install docker-py for Ansible control.
+  pip: name=docker-py
+  ignore_errors: true
+  when: is_linux
+
+
+  

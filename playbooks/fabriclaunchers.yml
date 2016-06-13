@@ -1,0 +1,18 @@
+---
+# file: fabriclaunchers.yml
+# These definitions are for hosts that launch instances of the Hyperledger 
+# Fabric Network using Docker and Docker Compose.
+# https://www.docker.io/
+# For this playbook, also see: http://docs.docker.io/en/latest/installation/ubuntulinux/
+
+- hosts: fabriclaunchers
+  become: true
+  pre_tasks:
+      - assert:
+         that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
+  
+  roles:
+    - { role: fabriclauncher,
+          user: "{{ansible_user}}",
+          group: "{{'staff' if is_macosx else ansible_user}}"
+      }

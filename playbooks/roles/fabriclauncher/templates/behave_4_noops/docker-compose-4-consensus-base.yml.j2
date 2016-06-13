@@ -1,0 +1,45 @@
+vpBase:
+  extends:
+    file: compose-defaults.yml
+    service: vp
+  environment:
+    - CORE_SECURITY_ENABLED=false
+    - CORE_PEER_PKI_ECA_PADDR=membersrvc0:50051
+    - CORE_PEER_PKI_TCA_PADDR=membersrvc0:50051
+    - CORE_PEER_PKI_TLSCA_PADDR=membersrvc0:50051
+    - CORE_PEER_PKI_TLS_ROOTCERT_FILE=./bddtests/tlsca.cert
+    # TODO: Currently required due to issue reading obbca configuration location
+    - CORE_PBFT_GENERAL_N=4
+    # The checkpoint interval in sequence numbers
+    - CORE_PBFT_GENERAL_K=2
+    # NOOPS consensus configuration
+    # These need to be added or the NOOPS code will look in the
+    # config.yaml file which is likely specified only for pbft DAF
+    - CORE_NOOPS_BLOCK_SIZE=1000
+    - CORE_NOOPS_BLOCK_TIMEOUT=1
+
+vpSieve:
+  extends:
+    service: vpBase
+  environment:
+    - CORE_PEER_VALIDATOR_CONSENSUS_PLUGIN=pbft
+    - CORE_PBFT_GENERAL_TIMEOUT_REQUEST=10s
+    - CORE_PBFT_GENERAL_MODE=sieve
+
+vpClassic:
+  extends:
+    service: vpBase
+  environment:
+    - CORE_PEER_VALIDATOR_CONSENSUS_PLUGIN=pbft
+    - CORE_PBFT_GENERAL_TIMEOUT_REQUEST=10s
+    - CORE_PBFT_GENERAL_MODE=classic
+
+vpBatch:
+  extends:
+    service: vpBase
+  environment:
+    - CORE_PEER_VALIDATOR_CONSENSUS_PLUGIN=pbft
+    - CORE_PBFT_GENERAL_TIMEOUT_REQUEST=10s
+    - CORE_PBFT_GENERAL_MODE=batch
+    # TODO: This is used for testing as to assure deployment goes through to block
+    - CORE_PBFT_GENERAL_BATCHSIZE=1

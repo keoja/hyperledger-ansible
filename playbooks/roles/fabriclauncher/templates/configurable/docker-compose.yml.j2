@@ -1,0 +1,28 @@
+#{{ansible_managed}}
+version: '2'
+services:
+  membersrvc0: 
+    extends: 
+      service: membersrvc
+      file: fabric-base.yml
+    container_name: {{fabriclauncher_membersrvc_container_name_root}}0  
+
+{% for number in range(0, fabriclauncher_num_validating_peers) %}
+  vp{{number}}:
+     extends: 
+       service: vp
+       file: fabric-base.yml
+     container_name: {{fabriclauncher_vpeer_container_name_root}}{{number}}
+     depends_on: 
+       - membersrvc0
+     environment: 
+       - CORE_PEER_ID=vp{{number}}
+       {% if number > 0 -%}
+       - CORE_PEER_DISCOVERY_ROOTNODE=vp0:30303
+       {% endif %}
+      
+{% endfor %}
+
+networks:
+     {{fabriclauncher_swarm_overlay_network_name}}:
+        driver: overlay   

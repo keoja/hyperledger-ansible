@@ -1,0 +1,13 @@
+---
+# file: swarmmanagers.yml
+# These definitions are for machines that serve as hosts for swarm manager.
+
+- hosts: swarmmanagers
+  become: true
+  pre_tasks:
+      - assert:
+         that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
+  roles:
+    - {role: swarmhost,
+              is_swarm_manager: true
+      }

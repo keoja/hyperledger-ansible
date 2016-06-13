@@ -1,0 +1,14 @@
+---
+# defaults file
+swarm_manager_port: "{{hl_swarm_manager_port}}"
+swarm_manager_name: swarm_manager
+swarm_manager_ip: "0.0.0.0"
+is_swarm_manager: false
+swarm_node_name: swarm_node
+swarm_image: swarm
+swarm_consul_ip: "{{hl_consul_server_ip}}"
+swarm_consul_port: "{{hl_consul_port}}"
+swarm_consul_path: swarm
+swarm_bind_addr_ip_filter: "{{hl_addr_ip_filter}}"
+swarm_overlay_network_name: "{{hl_identifier}}"
+swarm_overlay_network_subnet: "{{hl_overlay_network_addr_ip_filter}}"

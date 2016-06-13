@@ -1,0 +1,51 @@
+
+# This file needs to be customized to reflect the machines and the
+# network on which they communicate.  The configuration listed here
+# is a working example.  You'll also need to configure details about
+# the Fabric itself by setting the values of variables in group\_vars/all.yml
+# This is documented in group\_vars/README.md.
+
+# All machines
+ansibletestclone ansible_ssh_host=10.12.34.92   ansible_user=daford
+thing1          ansible_ssh_host=10.12.34.10    ansible_user=daford
+tool            ansible_ssh_host=10.12.34.87    ansible_user=daford
+
+[allmachines]
+ansibletestclone
+thing1
+tool
+
+# These are the machines that will participate in the Fabric deployment by
+# hosting Docker containers.
+[dockerhosts]
+ansibletestclone
+thing1
+tool
+
+# These are the machines that will serve as Consul servers.
+[consulservers]
+ansibletestclone
+
+# These are the machines that will serve as Consul clients.  These would 
+# be used in production environments.  Not currently used. DAF
+[consulclients]
+#tool
+
+# These are the machines that will serve as Docker Swarm managers.  They
+# distribute Docker containers to the various "swarmnodes" to be hosted.
+[swarmmanagers]
+ansibletestclone
+
+# These are the machines that will serve as Docker Swarm nodes.  They will
+# accept request from the Docker Swarm manager to execute Docker containers.
+[swarmnodes]
+ansibletestclone
+thing1
+tool
+
+# This is the machine that will launch the instance of the Fabric from a
+# generated "docker compose" file.  It will communicate with the Docker
+# Swarm manager which will then launch the containers.
+# There should be only one fabriclauncher!
+[fabriclaunchers]
+tool

@@ -1,0 +1,18 @@
+{
+  {% if consul_is_server -%}
+  "server": true,
+  "bootstrap": {{consul_server_bootstrap}},
+  {% else -%}
+  "leave_on_terminate": {{consul_leave_on_terminate}},
+  "retry_join": ["{{consul_server_ip}}"],
+  {% endif -%}
+  "bind_addr": "{{ ansible_all_ipv4_addresses | ipaddr(consul_bind_addr_ip_filter) | random }}",
+  "datacenter": "{{consul_data_center}}",
+  "domain": "{{consul_domain}}",
+  "client_addr": "0.0.0.0",
+  "ui": true,
+  "addresses": {
+        "http": "0.0.0.0"
+   },
+  "recursor": "{{consul_recursor_dns_ip}}"
+}

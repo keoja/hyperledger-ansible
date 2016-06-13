@@ -1,0 +1,6 @@
+# {{ansible_managed}}
+# See: https://www.consul.io/docs/guides/forwarding.html
+# Enable forward lookup of the 'consul' domain:
+server=/{{consul_domain}}/127.0.0.1#{{consul_dns_port}}
+#log-queries
+#log-facility=/var/log/dnsmasq.log

@@ -1,0 +1,8 @@
+---
+# site.yml
+
+- include: dockerhosts.yml
+- include: consulservers.yml
+- include: swarmnodes.yml
+- include: swarmmanagers.yml
+- include: fabriclaunchers.yml fabric=configurable

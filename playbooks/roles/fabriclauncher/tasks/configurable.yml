@@ -1,0 +1,38 @@
+---
+# file: configurable.yml
+# These tasks are for configuring and launching a customized instance
+# of Hyperledger Fabric.
+
+- name: Ensure the folder "{{fabriclauncher_config_dir}}" exists.
+  file: path={{fabriclauncher_config_dir}}
+        owner={{user}} group={{group}} mode=755
+        state=directory
+  when: is_linux
+  
+- name: Ensure the folder "{{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/" exists.
+  file: path={{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/ 
+        owner={{user}} group={{group}} mode=755
+        state=directory
+  when: is_linux
+    
+- name: Generate custom fabric-base.yml and install it in "{{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/fabric-base.yml"
+  template: src={{fabriclauncher_configurable_dir}}/fabric-base.yml.j2
+        dest={{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/fabric-base.yml
+        owner={{user}} group={{group}} mode=644
+  when: is_linux
+  tags: [doit]
+        
+- name: Generate custom docker-compose.yml for {{fabriclauncher_num_validating_peers}} validating peers, and install it in "{{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/docker-compose.yml"
+  template: src={{fabriclauncher_configurable_dir}}/docker-compose.yml.j2
+        dest={{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}/docker-compose.yml
+        owner={{user}} group={{group}} mode=644
+  when: is_linux
+  tags: [doit]
+
+- name: Launch Hyperledger Fabric with ({{fabriclauncher_num_validating_peers}} validating peers). 
+  docker_service:
+      project_src={{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}
+      files=docker-compose.yml
+      docker_host="tcp://{{fabriclauncher_docker_host_ip}}:{{fabriclauncher_docker_host_port}}"
+  when: is_linux
+  tags: [doit]

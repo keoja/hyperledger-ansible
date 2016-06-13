@@ -1,0 +1,11 @@
+---
+# Available in Ansible 2.2
+#- name: Restart Docker
+#  systemd: name=docker 
+#           state=restarted 
+#           daemon_reload=yes
+#  become: true  
+
+- name: Restart Docker
+  command: systemctl restart docker
+  become: true 

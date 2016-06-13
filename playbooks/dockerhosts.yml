@@ -1,0 +1,15 @@
+---
+# file: dockerhosts.yml
+# These definitions are for machines that serve as hosts for Hyperledger Fabric peers.
+# https://www.docker.io/
+# For this playbook, also see: http://docs.docker.io/en/latest/installation/ubuntulinux/
+
+- hosts: dockerhosts
+  become: true
+  pre_tasks:
+      - assert:
+         that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
+  roles:
+    - {role: dockerhost,
+              user: "{{ lookup('env', 'USER') }}"
+      }

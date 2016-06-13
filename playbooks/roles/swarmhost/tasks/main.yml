@@ -1,0 +1,39 @@
+---
+# file: roles/swarmhost/main.yml
+# The tasks in this file configure machines that serve as hosts for
+# Docker Swarm.
+# See: http://blog.toast38coza.me/docker-swarm-with-ansible-a-late-swarmweek-entry/
+# See: https://docs.docker.com/swarm/install-w-machine/
+# See: https://docs.docker.com/swarm/install-manual/
+# See: http://blog.scottlowe.org/2015/03/06/running-own-docker-swarm-cluster/
+
+# Swarm Manager
+#---------------------------------------------------------------  
+- name: Launch the Swarm Manager Docker image 
+  docker_container: 
+          name: "{{swarm_manager_name}}_{{ansible_hostname}}"
+          image: "{{swarm_image}}"
+          state: started
+          published_ports:
+             - "{{swarm_manager_port}}:{{swarm_manager_port}}"
+          command: "manage -H :{{swarm_manager_port}} --advertise {{swarm_manager_ip}}:{{swarm_manager_port}} consul://{{swarm_consul_ip}}:{{swarm_consul_port}}/{{swarm_consul_path}}"
+  when: is_unix and is_swarm_manager 
+  tags: [swarm, swarmmanager]
+  
+# This can "fail" if the network already exists. Ignore. DAF
+- name: Create the Docker overlay network "{{swarm_overlay_network_name}}".
+  command: docker network create --driver overlay --subnet={{swarm_overlay_network_subnet}} {{swarm_overlay_network_name}}
+  ignore_errors: true
+  when: is_unix and is_swarm_manager 
+  tags: [swarm, swarmmanager, overlaynetwork]
+  
+# Swarm Node
+#---------------------------------------------------------------  
+- name: Launch the Swarm Node Docker image 
+  docker_container: 
+          name: "{{swarm_node_name}}_{{ansible_hostname}}"
+          image: "{{swarm_image}}"
+          state: started
+          command: "join --advertise '{{ ansible_all_ipv4_addresses | ipaddr(swarm_bind_addr_ip_filter) | random }}':2375 consul://{{swarm_consul_ip}}:{{swarm_consul_port}}/{{swarm_consul_path}}"
+  when: is_unix and not is_swarm_manager 
+  tags: [swarm, swarmnode]

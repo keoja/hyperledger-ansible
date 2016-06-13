@@ -1,0 +1,24 @@
+---
+# defaults file for fabriclauncher role
+fabriclauncher_default_fabric: behave_4_noops
+fabric: behave_4_noops
+fabriclauncher_config_dir: ~{{user}}/Fabric
+fabriclauncher_behave_4_noops_dir: behave_4_noops
+fabriclauncher_docker_compose_version: "{{hl_docker_compose_version}}"
+
+fabriclauncher_vpeer_image: "{{hl_vpeer_docker_image}}"
+fabriclauncher_msvc_image: "{{hl_msvc_docker_image}}" 
+
+fabriclauncher_configurable_dir: configurable
+
+fabriclauncher_num_validating_peers: "{{hl_num_validating_peers}}"
+fabriclauncher_core_security_enabled: false
+fabriclauncher_membersrvc_container_name_root: membersrvc
+fabriclauncher_vpeer_container_name_root: vpeer
+
+fabriclauncher_docker_host_ip: "{{hl_docker_host_ip}}"
+fabriclauncher_docker_host_port: "{{hl_docker_host_port}}"
+
+fabriclauncher_swarm_overlay_network_name: "{{hl_overlay_network_name}}"
+fabriclauncher_swarm_overlay_network_endpoint_ip: "{{hl_overlay_network_subnet}}.1"
+fabriclauncher_swarm_overlay_network_endpoint_port: "{{hl_docker_tcp_port}}"

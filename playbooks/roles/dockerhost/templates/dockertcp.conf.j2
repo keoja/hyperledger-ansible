@@ -1,0 +1,9 @@
+#{{ ansible_managed }}
+# The cluster-store and cluster-advertise are to define an overlay network.
+# See: https://docs.docker.com/engine/userguide/networking/dockernetworks/#an-overlay-network
+# See: https://docs.docker.com/engine/userguide/networking/get-started-overlay/
+[Service] 
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H tcp://0.0.0.0:2375 -H fd:// \
+         --cluster-store=consul://{{dockerhost_consul_ip}}:{{dockerhost_consul_port}} \
+         --cluster-advertise={{ ansible_all_ipv4_addresses | ipaddr(dockerhost_addr_ip_filter) | random }}:2735

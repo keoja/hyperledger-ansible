@@ -1,0 +1,40 @@
+---
+# file: roles/fabriclauncher/tasks/main.yml
+# These are task definitions for provisioning and configuring hosts to
+# be able to launch instances of the Hyperledger Fabric, as well as
+# tasks that actually launch fabric instances.
+
+- name: Ensure that the top-level fabric configuration directory {{fabriclauncher_config_dir}} exists. 
+  file: path={{fabriclauncher_config_dir}}
+        state=directory
+        owner={{user}} group={{group}} mode=755
+  when: is_linux
+  
+# Docker Compose
+#-----------------------------------------------------------
+# This isn't working quite correctly.  It installs with no errors, but ansible
+# does not find docker-compose unless it is installed via pip in the next task below. 
+# That task has been troublesome by reporting errors on the install, but seemlying
+# not creating other problems.  If it does report an error simply install via
+# the command line via "pip install docker-compose" See the website. DAF
+# See: https://docs.docker.com/compose/install/
+# curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+- name: Install docker-compose (v{{fabriclauncher_docker_compose_version}})
+  get_url: url="https://github.com/docker/compose/releases/download/{{fabriclauncher_docker_compose_version}}/docker-compose-{{ansible_system}}-{{ansible_architecture}}"
+           dest="/usr/local/bin/docker-compose"
+           mode=0755
+  when: is_linux
+  ignore_errors: yes
+  
+- name: Install docker-compose (pip)
+#  pip: name=docker-compose state=present
+  command: pip install docker-compose
+  when: is_linux
+  ignore_errors: yes  
+  
+- include: behave_4_noops.yml
+  when: "{{fabric == 'behave_4_noops'}}"
+  
+- include: configurable.yml
+  when: "{{fabric == 'configurable'}}"  
+      
