@@ -33,8 +33,8 @@
   ignore_errors: yes  
   
 - include: behave_4_noops.yml
-  when: "{{fabric == 'behave_4_noops'}}"
+  when: "{{hl_fabric_type == 'behave_4_noops'}}"
   
 - include: configurable.yml
-  when: "{{fabric == 'configurable'}}"  
+  when: "{{hl_fabric_type == 'configurable'}}"  
       
