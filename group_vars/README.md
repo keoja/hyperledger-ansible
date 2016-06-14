@@ -8,6 +8,7 @@ all.yml - Contains a number of different variable definitions that are common to
 | Variable | Default Value | Comment|
 | ---------- |--------|
 | hl\_num\_validating_peers   |  8   | The number of Hyperledger validating peers to run in the Fabric. |
+| hl_fabric_type              | "configurable"  | The "type" of fabric to launch. (Options: "configurable", "behave_4_noops") |
 | hl\_vpeer\_docker_image     | "yeasy/hyperledger-peer" | The Docker image to use for the validating peer. | 
 | hl\_msvc\_docker_image      | "yeasy/hyperledger-membersrvc" | The Docker image to use for the member service.  |
 | hl\_identifier               | hyperledger | The identifier used for network domains, etc. |

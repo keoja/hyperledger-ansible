@@ -43,6 +43,10 @@ hl_minimum_ansible_version_minor: 1
 
 # Hyperledger
 hl_num_validating_peers: 8
+
+# The "type" of fabric to launch. (Options: "configurable", "behave_4_noops")
+hl_fabric_type: "configurable"
+
 hl_vpeer_docker_image: "yeasy/hyperledger-peer"
 hl_msvc_docker_image: "yeasy/hyperledger-membersrvc" 
 

@@ -5,4 +5,4 @@
 - include: consulservers.yml
 - include: swarmnodes.yml
 - include: swarmmanagers.yml
-- include: fabriclaunchers.yml fabric=configurable
+- include: fabriclaunchers.yml 
