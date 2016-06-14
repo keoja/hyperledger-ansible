@@ -11,7 +11,7 @@ The actions of the Ansible playbooks that created this instance are configured t
 Future extensions to the functionality of playbooks in this repository are under development and will address functions such as the automatic provisioning and configuration of a developer's workstation to write and test code for the Hyperledger code base, as well as the provisioning and configuration of Docker containers for continuous integration builds using [Jenkins](https://jenkins.io/) and other tools. 
 
 ## Hyperledger
-Hyperledger is a project under the management of the [Linux Foundation](http://www.linuxfoundation.org/) that implements a type of "[permissioned Blockchain](https://en.wikipedia.org/wiki/Block_chain_(database)."
+Hyperledger is a project under the management of the [Linux Foundation](http://www.linuxfoundation.org/) that implements a type of [permissioned Blockchain](https://en.wikipedia.org/wiki/Block_chain_(database).
 
 ## Ansible
 Ansible is an automation framework for provisioning, deploying and generally managing computers.  It differs from other frameworks (e.g., [Chef](https://www.chef.io/), [Puppet](https://puppet.com/), [Salt](https://saltstack.com/)) in that it is agent-less, meaning that it does not install software on the machines it manages, instead it performs all operations by [ssh](https://en.wikipedia.org/wiki/Secure_Shell).  This tends to simplify matters greatly, helping to make Ansible easier to deploy, learn and use.  
