@@ -85,6 +85,8 @@ To update ansible from github as necessary.
 These are useful additions to one's ~/.bashrc file (where GIT_REPOS_HOME is the parent of the cloned Ansible github repository).
 
         export ANSIBLE_HOME=$GIT_REPOS_HOME/ansible
+	export PATH=$ANSIBLE_HOME/bin:$PATH
+	export PYTHONPATH=$ANSIBLE_HOME/lib
         source $ANSIBLE_HOME/hacking/env-setup -q
 
 
