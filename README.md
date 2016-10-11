@@ -63,13 +63,13 @@ To use this tool, you will want to clone the repository. If you are going to mod
 1. Clone the hyperledger-ansible github repository.
 
   ```
-   git clone git://github.com/keoja/hyperledger-ansible
+  git clone git://github.com/keoja/hyperledger-ansible
   ```
 
 2. Alternatively, fork the repository to your
 
   ```
-   git clone git://github.com/<yourorganization>/hyperledger-ansible
+  git clone git://github.com/<yourorganization>/hyperledger-ansible
   ```
 
 ### Install Ansible V2.1.0
@@ -79,37 +79,37 @@ The Ansible playbooks in this repository **REQUIRE** at least version 2.1.0 of A
 1. Clone the ansible github repository.
 
   ```
-   git clone git://github.com/ansible/ansible.git --recursive
+  git clone git://github.com/ansible/ansible.git --recursive
   ```
 
 2. Change directory into the newly cloned repository.
 
   ```
-   cd ./ansible
+  cd ./ansible
   ```
 
 3. Set up environment variables.
 
   ```
-   source ./hacking/env-setup
+  source ./hacking/env-setup
   ```
 
 4. Install pip.
 
   ```
-   sudo easy_install pip
+  sudo easy_install pip
   ```
 
 5. Install Python modules for Anisble.
 
   ```
-   sudo pip install paramiko PyYAML Jinja2 httplib2 six
+  sudo pip install paramiko PyYAML Jinja2 httplib2 six
   ```
 
 6. Clone Ansible submodules.
 
   ```
-   git submodule update --init --recursive
+  git submodule update --init --recursive
   ```
 
 To update ansible from github as necessary.
@@ -134,32 +134,32 @@ Basically, you need to install the [OpenSSH](http://www.openssh.com/) Server, an
 1. Install the OpenSSH Server (On a Mac, you need to go to System Preferences->Sharing and enable "Remote Login" for all users).
 
   ```
-   sudo apt-get install openssh-server  
+  sudo apt-get install openssh-server
   ```
 
 2. Install python for apt
 
   ```
-   sudo apt-get install python-apt
+  sudo apt-get install python-apt
   ```
 
 3. Reboot
 
   ```
-   sudo reboot
+  sudo reboot
   ```
 
 4. If necessary, create a user with sudo privileges on the new machine that Ansible will use to to ssh to login to the machine. (e.g., for the user "daford")
 
   ```
-   sudo adduser daford
-   sudo usermod -a -G sudo daford
+  sudo adduser daford
+  sudo usermod -a -G sudo daford
   ```
 
 5. Copy the user's public SSH Key to the new host. This only populates the `.ssh/authorized_keys` file with the `id_rsa.pub` value. It doesn't create any other files on the host. For example, for the user "daford" on a host with ip address 10.12.34.100 issue this on the Ansible controlling machine.
 
   ```
-   ssh-copy-id -i ~/.ssh/id_rsa.pub daford@10.12.34.100
+  ssh-copy-id -i ~/.ssh/id_rsa.pub daford@10.12.34.100
   ```
 
 6. Edit the Ansible `fabrichosts` file to include the new machine.
@@ -207,7 +207,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 1. Configure the Consul servers (Note, there is also a playbook/shell script to provision and configure Consul clients `bin/consulclients.sh`):
 
   ```
-   bin/consulservers.sh
+  bin/consulservers.sh
   ```
 
   ![Alt](img/screenshots/consulservers.png "Screen shot showing Ansible provisioning and configuring Consul servers.")
@@ -215,7 +215,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 2. Provision and configure the Docker Swarm nodes:
 
   ```
-   bin/swarmnodes.sh
+  bin/swarmnodes.sh
   ```
 
   ![Alt](img/screenshots/swarmnodes.png "Screen shot showing Ansible provisioning and configuring Docker Swarm nodes.")
@@ -223,7 +223,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 3. Provision and configure the Docker Swarm managers:
 
   ```
-   bin/swarmmanagers.sh
+  bin/swarmmanagers.sh
   ```
 
   ![Alt](img/screenshots/swarmmanagers.png "Screen shot showing Ansible provisioning and configuring Docker Swarm managers.")
@@ -233,7 +233,7 @@ Note in the screenshot above how Ansible attempted to create the "Docker overlay
 1. Bring up the Fabric, by default this will launch eight (8) validating peers and one member service:
 
   ```
-   bin/configurablefabric.sh
+  bin/configurablefabric.sh
   ```
 
   ![Alt](img/screenshots/configurablefabric.png "Screen shot showing Ansible launching the Hyperledger Fabric.")
