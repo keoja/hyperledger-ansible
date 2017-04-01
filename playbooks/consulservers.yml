@@ -1,6 +1,6 @@
 ---
-# file: consulhosts.yml
-# These definitions are for machines that serve as hosts for consul.
+# file: consulservers.yml
+# These definitions are for machines that serve as servers for consul.
 # See: https://www.consul.io/
 # See: https://hub.docker.com/_/consul/
 
