@@ -66,7 +66,7 @@ To use this tool, you will want to clone the repository. If you are going to mod
   git clone git://github.com/keoja/hyperledger-ansible
   ```
 
-2. Alternatively, fork the repository to your
+2. Alternatively, fork the repository to your own account.
 
   ```
   git clone git://github.com/<yourorganization>/hyperledger-ansible
@@ -162,11 +162,11 @@ Basically, you need to install the [OpenSSH](http://www.openssh.com/) Server, an
   ssh-copy-id -i ~/.ssh/id_rsa.pub daford@10.12.34.100
   ```
 
-6. Edit the Ansible `fabrichosts` file to include the new machine.
+6. Edit the Ansible `fabrichosts` file to include the new machine as a "host".  This means creating a "hostX" entry (e.g., "host4") for it's IP4 address and user id, and adding the host's label to the appropriate categories as per the role the machine will be playing in the Fabric instance.  At the very least it should be added to the "[allmachines]", "[dockerhosts]", and "[swarmnodes]" categories.
 
 ### Use Ansible to "ping" the hosts to check for connectivity.
 
-An easy way to test of things are configured correctly is to "ping" the hosts.
+An easy way to test if things are configured correctly is to use Ansible to "ping" the hosts.
 
 ```
     ansible -i fabrichosts allmachines -m ping
@@ -176,7 +176,7 @@ An easy way to test of things are configured correctly is to "ping" the hosts.
 
 # Customize The Hyperledger Fabric Deployment
 
-The playbooks and the roles they reference provide the basic specification of how to provision and configure a system to run a distributed instance of Hyperledger over a collection of different hosts. To enable this functionality, additional configuration is required to specify the exact hosts that will participate, and their roles in the network. This is accomplished by editing the `fabrichosts` file. Also, the characteristics of the Hyperledger Fabric itself needs to be specified, for instance, the exact Docker images to be used for the peers, and the member service, as well as their number. This configuration will require editing the `group_vars/all.yml` file; the variables that require customization are documented in the [README.md](group_vars/README.md) in the `group_vars` directory.
+The playbooks and the roles they reference provide the basic specification of how to provision and configure a system to run a distributed instance of the Hyperledger fabric over a collection of different Docker hosts. To enable this functionality, additional configuration is required to specify the exact hosts that will participate, and what their roles in the network and fabric will be. This is accomplished by editing the `fabrichosts` file. Also, the characteristics of the Hyperledger Fabric itself needs to be specified, for instance, the exact Docker images to be used for the peers, and the member service, as well as their number. This configuration will require editing the `group_vars/all.yml` file; the variables that require customization are documented in the [README.md](group_vars/README.md) in the `group_vars` directory, and in the file itself.
 
 # Using the playbooks
 
@@ -193,7 +193,7 @@ To actually execute a playbook one uses the command `ansible-playbook` and provi
 
 ## Starting the Fabric
 
-A number of shell scripts have been prepared to act as shortcuts to invoking Ansible with various playbooks. They reside in the `bin` directory. When the `fabrichosts` file is property customized one can provision them for Docker with:
+A number of shell scripts have been prepared to act as shortcuts to invoking Ansible with various playbooks. They reside in the `bin` directory. When the `fabrichosts` file is properly customized, one can provision all of the machines with:
 
 ```
     cd hyperledger-ansible
