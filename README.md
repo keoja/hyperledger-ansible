@@ -72,9 +72,9 @@ To use this tool, you will want to clone the repository. If you are going to mod
   git clone git://github.com/<yourorganization>/hyperledger-ansible
   ```
 
-### Install Ansible V2.1.0
+### Install Ansible >=V2.1.0
 
-The Ansible playbooks in this repository **REQUIRE** at least version 2.1.0 of Ansible. This requirement is in place because they leverage Ansible modules for interfacing with Docker that were only introduced in V2.1.0 (e.g., [docker_container](http://docs.ansible.com/ansible/docker_container_module.html) and [docker_service](http://docs.ansible.com/ansible/docker_service_module.html)). At the time this text was originally written (June 2016), this version of Ansible is not generally available in the Linux Distro repositories, requiring installation of Ansible from source. This is not difficult and mostly involves cloning the [Ansible github repository](https://github.com/ansible/ansible), and setting some environment variables.
+The Ansible playbooks in this repository **REQUIRE** at least version 2.1.0 of Ansible. This requirement is in place because they leverage Ansible modules for interfacing with Docker that were only introduced in V2.1.0 (e.g., [docker_container](http://docs.ansible.com/ansible/docker_container_module.html) and [docker_service](http://docs.ansible.com/ansible/docker_service_module.html)).
 
 1. Clone the ansible github repository.
 
@@ -166,7 +166,7 @@ Basically, you need to install the [OpenSSH](http://www.openssh.com/) Server, an
 
 ### Use Ansible to "ping" the hosts to check for connectivity.
 
-An easy way to test if things are configured correctly is to use Ansible to "ping" the hosts.
+An easy way to test if things are configured correctly is to use Ansible to "ping" the hosts (there is also a shell script `bin/ping.sh` that does this).
 
 ```
     ansible -i fabrichosts allmachines -m ping
@@ -188,23 +188,25 @@ To actually execute a playbook one uses the command `ansible-playbook` and provi
 
 ```
     cd hyperledger-ansible
-    ansible-playbook -i fabrichosts playbooks/dockerhosts.yml
+    ansible-playbook --ask-become-pass -i fabrichosts playbooks/dockerhosts.yml
 ```
 
-## Starting the Fabric
+## Creating the Fabric
 
-A number of shell scripts have been prepared to act as shortcuts to invoking Ansible with various playbooks. They reside in the `bin` directory. When the `fabrichosts` file is properly customized, one can provision all of the machines with:
+The steps listed below use Ansible playbooks to provision, configure and start an instance of the Hyperledger Fabric.  They use a number of shell scripts that have been prepared to act as shortcuts to invoking Ansible with the various playbooks, those reside in the `bin` directory.   
 
-```
+1. Configure the file `fabrichosts` to have the proper number of host (remote) machines with their IP4 addresses specified.
+
+2. Use Ansible to provision and configure the collection of hosts defined in the `fabrichosts` file to support Docker.
+
+    ```
     cd hyperledger-ansible
     bin/dockerhosts.sh
-```
+    ```
+    
+Ansible will prompt you for the "`SUDO password`" of the user for it to use on each of the host (remote) machines.    
 
-at which point Ansible will prompt you for the "`SUDO password`" of the user on the host (remote) machine.
-
-_Note: There is currently a bug in the installation of "docker-py." It is used by Ansible to interface with the Docker daemon on the host machine. It needs to be installed on the host machine, but on some machines this installation results in an error, the exact problem is not clear. In that case, that particular machine cannot be provisioned by Ansible and will need to be omitted from participation in the Fabric. This problem is being actively investigated. Unfortunately, currently, there is no workaround._ DAF
-
-1. Configure the Consul servers (Note, there is also a playbook/shell script to provision and configure Consul clients `bin/consulclients.sh`):
+3. Configure the Consul servers.
 
   ```
   bin/consulservers.sh
@@ -212,7 +214,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 
   ![Alt](img/screenshots/consulservers.png "Screen shot showing Ansible provisioning and configuring Consul servers.")
 
-2. Provision and configure the Docker Swarm nodes:
+4. Provision and configure the Docker Swarm nodes (These are the Docker hosts that will be part of the Docker swarm that accepts the Docker containers, encapsulating the Hyperledger implementation, for execution):
 
   ```
   bin/swarmnodes.sh
@@ -220,7 +222,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 
   ![Alt](img/screenshots/swarmnodes.png "Screen shot showing Ansible provisioning and configuring Docker Swarm nodes.")
 
-3. Provision and configure the Docker Swarm managers:
+5. Provision and configure the Docker Swarm manager(s):
 
   ```
   bin/swarmmanagers.sh
@@ -230,7 +232,7 @@ _Note: There is currently a bug in the installation of "docker-py." It is used b
 
 Note in the screenshot above how Ansible attempted to create the "Docker overlay network" but this resulted in an "error." The reason is that the overlay network has already been created, so there's nothing to do. It would be better if an error was not reported, but this is not a problem, we simply ignore the response.
 
-1. Bring up the Fabric, by default this will launch eight (8) validating peers and one member service:
+1. Bring up the Fabric, by default this will launch four (4) validating peers and one member service:
 
   ```
   bin/configurablefabric.sh

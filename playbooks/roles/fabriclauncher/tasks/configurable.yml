@@ -29,7 +29,7 @@
   when: is_linux
   tags: [doit]
 
-- name: Launch Hyperledger Fabric with ({{fabriclauncher_num_validating_peers}} validating peers). 
+- name: Launch Hyperledger Fabric with ({{fabriclauncher_num_validating_peers}} validating peers) via docker_host="tcp://{{fabriclauncher_docker_host_ip}}:{{fabriclauncher_docker_host_port}}" 
   docker_service:
       project_src={{fabriclauncher_config_dir}}/{{fabriclauncher_configurable_dir}}
       files=docker-compose.yml
