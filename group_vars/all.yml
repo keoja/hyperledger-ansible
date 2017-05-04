@@ -1,6 +1,96 @@
 ---
 # file: group_vars/all.yml
-# This file has variable definitions for all machines
+# This file has globla variable definitions to configure hyperleger
+# across all machines that will support the fabric.  Most will not need
+# to be changed, but see below for the ability to customize.
+
+# Hyperledger
+#----------------------------------------------------------------
+# The following variables control the configuration of the Hyperledger
+# fabric running on docker, including the configuraiton of Consul, 
+# Docker Swarm and Docker Compose.
+
+# This is the number of validating peers that will be deployed
+### You will likely want to change this for your environment/network.
+hl_num_validating_peers: 4
+
+# These two variables specify the Docker images to use when
+# creating Docker containers.
+# See: https://hub.docker.com/r/yeasy/hyperledger-fabric-peer/
+# See: https://hub.docker.com/r/yeasy/hyperledger-fabric-membersrvc/
+### You may want/need to change these.
+hl_vpeer_docker_image: "yeasy/hyperledger-fabric-peer"
+hl_msvc_docker_image: "yeasy/hyperledger-fabric-membersrvc" 
+
+# This variable specifies the IP4 subnet of your network.
+### You will need to change this for your environment/network.
+hl_network_subnet: "10.12.34"
+
+# This variable specifies the IP4 subnet of the overlay network
+# that Docker Swarm will create.
+### You many need to change this for your environmnet/network.
+hl_overlay_network_subnet: 10.12.36
+
+# This variable specifies the IP4 address for the machine that will run both the
+# the consul and swarm managers.  
+### You will need to change this for your environment/network.
+hl_main_server_ip: "{{hl_network_subnet}}.76"
+
+# Networking
+# This string is used by the Jinja2 ipaddr filter for Docker hosts that have more than one 
+# network interface to find the IP address that should be used when it "binds" or 
+# advertises how others should connect to it.
+# You'll see the pattern below used to find the correct ip address (or potentially many)
+# to use.  It takes all of the ipv4 addresses of the host, filters out the ones that
+# don't match the filter, and then selects one at "random."  In the last case there should
+# only be one that matches the filter, so the result is just one address (random is used
+# to make it easier to extract from the list return by the ipaddr filter, and handles the
+# case where there might be more than one DAF)
+# hl_addr_ip_filter: "{{ ansible_all_ipv4_addresses | ipaddr(hl_addr_ip_filter) | random }}" 
+# Currently, this is hard coded, but if your machines have multiple network
+# connections you may need to use the string above.
+### You may need to change this for your environment/network.
+hl_addr_ip_filter: "{{hl_network_subnet}}.0/24"
+
+# This specifies the "type" of fabric to launch. 
+# (Options: "configurable", "behave_4_noops")
+hl_fabric_type: "configurable"
+
+# This variable specifies the identifier to use for
+# Docker created network domains, etc.
+hl_identifier: hyperledger
+
+# Docker
+hl_docker_tcp_port: 2375
+
+# Consul
+hl_consul_server_ip: "{{hl_main_server_ip}}"
+hl_consul_port: 8500
+hl_consul_dns_port: 8600
+hl_consul_datacenter_identifier: keoja0
+
+# Swarm Overlay network 
+hl_swarm_manager_ip: "{{hl_main_server_ip}}"
+hl_swarm_manager_port: 4000
+hl_overlay_network_name: "{{hl_identifier}}"
+hl_overlay_network_addr_ip_filter: "{{hl_overlay_network_subnet}}.0/24"
+
+# Docker Compose
+hl_docker_compose_version: 1.7.1
+hl_docker_host_ip: "{{hl_swarm_manager_ip}}"
+hl_docker_host_port: "{{hl_swarm_manager_port}}"
+
+# Ansible
+#----------------------------------------------------------------
+# The remaining variable defintions are specific to the configuration
+# of Ansible.
+
+# Ansible version >= 2.1 is required to use the Ansible Docker 
+# modules (e.g., docker_service) introduced in Ansible Version 2.1.
+# This requirement will be asserted by all of the playbooks causing
+# them to exit for incompatible Ansible versions.
+hl_minimum_ansible_version_major: 2
+hl_minimum_ansible_version_minor: 1
 
 # Apt
 #----------------------------------------------------------------
@@ -16,6 +106,8 @@ is_ubuntu: "{{ ansible_distribution  == 'Ubuntu' }}"
 is_ubuntu_15_10: "{{ is_ubuntu and ansible_distribution_version == '15.10' }}"
 is_ubuntu_16_04: "{{ is_ubuntu and ansible_distribution_version == '16.04' }}"
 is_ubuntu_16_10: "{{ is_ubuntu and ansible_distribution_version == '16.10' }}"
+is_ubuntu_17_04: "{{ is_ubuntu and ansible_distribution_version == '17.04' }}"
+is_ubuntu_17_10: "{{ is_ubuntu and ansible_distribution_version == '17.10' }}"
 
 is_debian: "{{ ansible_distribution == 'Debian' or is_ubuntu or is_linuxmint }}" 
 is_fedora: "{{ ansible_pkg_mgr == 'yum' }}"
@@ -33,64 +125,5 @@ is_yum_pkg_mgr: "{{ ansible_pkg_mgr == 'yum' }}"        # Fedora, CentOS
 is_pacman_pkg_mgr: "{{ ansible_pkg_mgr == 'pacman' }}"  # Arch
 is_opkg_pkg_mgr: "{{ ansible_pkg_mgr == 'opkg' }}"      # Angstrom
 
-# Hyperledger General
-#----------------------------------------------------------------
-# Ansible version >= 2.1 is required to use the Docker 
-# modules (e.g., docker_service) introduced in 2.1.
-# This will be asserted by all of the playbooks.
-hl_minimum_ansible_version_major: 2
-hl_minimum_ansible_version_minor: 1
 
-# Hyperledger
-hl_num_validating_peers: 8
-
-# The "type" of fabric to launch. (Options: "configurable", "behave_4_noops")
-hl_fabric_type: "configurable"
-
-hl_vpeer_docker_image: "yeasy/hyperledger-peer"
-hl_msvc_docker_image: "yeasy/hyperledger-membersrvc" 
-
-# This is the identifier to use for network domains, etc.
-hl_identifier: hyperledger
-
-# Change this for your network.
-hl_network_subnet: "10.12.34"
-
-# This is the machine that will run the consul and swarm managers.
-# Change this for your network.
-hl_main_server_ip: "{{hl_network_subnet}}.92"
-
-# Networking
-# This string is used by the Jinja2 ipaddr filter to find the ip address of a host
-# that should be used when it "binds" or advertises how others should connect to it.
-# You'll see the pattern below used to find the correct ip address (or potentially many)
-# to use.  It takes all of the ipv4 addresses of the host, filters out the ones that
-# don't match the filter, and then selects one at "random."  In the last case there should
-# only be one that matches the filter, so the result is just one address (random is used
-# to make it easier to extract from the list return by the ipaddr filter, and handles the
-# case where there might be more than one DAF)
-# {{ ansible_all_ipv4_addresses | ipaddr(hl_addr_ip_filter) | random }} 
-# Change this for your network.
-hl_addr_ip_filter: "{{hl_network_subnet}}.0/24"
-
-# Docker
-hl_docker_tcp_port: 2375
-
-# Consul
-hl_consul_server_ip: "{{hl_main_server_ip}}"
-hl_consul_port: 8500
-hl_consul_dns_port: 8600
-hl_consul_datacenter_identifier: keoja0
-
-# Swarm Overlay network 
-hl_swarm_manager_ip: "{{hl_main_server_ip}}"
-hl_swarm_manager_port: 4000
-hl_overlay_network_subnet: 10.12.36
-hl_overlay_network_name: "{{hl_identifier}}"
-hl_overlay_network_addr_ip_filter: "{{hl_overlay_network_subnet}}.0/24"
-
-# Docker Compose
-hl_docker_compose_version: 1.7.1
-hl_docker_host_ip: "{{hl_swarm_manager_ip}}"
-hl_docker_host_port: "{{hl_swarm_manager_port}}"
 

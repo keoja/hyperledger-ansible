@@ -32,6 +32,18 @@
   when: is_ubuntu_16_04
   ignore_errors: yes
   
+- name: Add the Docker PPA (Ubuntu 16.10).
+  apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-yakkety main' 
+                  state=present
+  when: is_ubuntu_16_10
+  ignore_errors: yes
+  
+- name: Add the Docker PPA (Ubuntu 17.04).
+  apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-zesty main' 
+                  state=present
+  when: is_ubuntu_17_04
+  ignore_errors: yes
+  
 - name: Updating/upgrading apt package information.
   apt: update_cache=yes upgrade=dist 
        cache_valid_time={{cache_horizon}} 
@@ -39,7 +51,7 @@
   when: is_apt_pkg_mgr
   ignore_errors: yes
 
-- name: Purge any old Docker installations if necessary.
+- name: Purge any old Docker installations (if necessary).
   apt: pkg=lxc-docker state=absent
   when: is_apt_pkg_mgr
   ignore_errors: yes
@@ -49,9 +61,28 @@
   when: is_apt_pkg_mgr
   ignore_errors: yes
 
+- name: Install AUFS filesystem support (2).
+  apt: pkg=linux-image-extra-virtual state=latest
+  when: is_apt_pkg_mgr
+  ignore_errors: yes
+
+# docker-ce is not available for Ubuntu (5/3/2017)
+# But installing the "latest" will do the trick.
 - name: Install Docker.
   apt: pkg=docker-engine state=latest
-  when: is_apt_pkg_mgr
+  when: is_apt_pkg_mgr and is_ubuntu
+  tags: [apt, docker, docker-engine]
+
+- name: Install Docker Community Edition (ce).
+  apt: pkg=docker-ce state=latest
+  when: is_apt_pkg_mgr and not is_ubuntu
+  tags: [apt, docker, docker-ce]
+
+# If UFW is being used on Linux, then it needs to be configured to enable
+# packet forwarding.  Do this by changing the file /etc/default/ufw
+# sucht that: DAF
+#   DEFAULT_FORWARD_POLICY="DROP" -> DEFAULT_FORWARD_POLICY="ACCEPT"
+# Use Ansible lineinfile. TODO
 
 - name: Ensure that the Docker systemctl drop-in directory "{{dockerhost_systemctl_dropin_dir}}" exists.
   file: path={{dockerhost_systemctl_dropin_dir}}

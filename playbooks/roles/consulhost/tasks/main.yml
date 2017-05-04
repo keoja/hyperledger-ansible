@@ -11,7 +11,7 @@
 # machine rather than on the remote host being managed. DAF
 # (this assumes the apt package manager on the controller)
 # See: http://docs.ansible.com/ansible/playbooks_filters_ipaddr.html
-- name: Ensure python-netaddr is installed on the Ansible controller.
+- name: Ensure python-netaddr is installed on the Ansible controller (i.e., this machine).
   local_action: apt name=python-netaddr state=latest
   become: true
   ignore_errors: true

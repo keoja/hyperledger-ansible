@@ -1,51 +1,103 @@
 
-# This file needs to be customized to reflect the machines and the
-# network on which they communicate.  The configuration listed here
-# is a working example.  You'll also need to configure details about
-# the Fabric itself by setting the values of variables in group\_vars/all.yml
-# This is documented in group\_vars/README.md.
+# This is the main file of the system for specifying the configuration of
+# the computers that will "host" an instance of the Hyperledger fabric using
+# Docker containers.  Ansible uses the information in this file to know
+# which machines (called "hosts") to provision and configure.
+#
+### You will need to customize this file to reflect the number of machines
+### you will be using for host the Hyperledger fabric instance, their
+### specific IP4 addresses, the the roles they will be playing in the
+### fabric instance.  You will also need to configure the user id that
+### Ansible will use to log into each host to perform its provisioning
+### and configuration operations.  Ansible will need to have SSH access
+### to the specific specified id (e.g., "daford" below) on each machine, 
+### meaning each machine will need to be running OpenSSH (or equivalent) 
+### and the specified user id will need the public SSH key that Ansible 
+### will use stored in its "~/ssh" folder.  See the main README.md 
+### for details.
+#
+# This file maps an identifier of each (remote) Docker container 
+# execution "host" to that machine's IP4 address.  Those identifiers
+# (e.g., "host0") are then assigned to one or more categories by placing 
+# them under an assigned label. For example, "host0", "host1" and 
+# "host2" are all grouped together under the "[dockerhosts]" label
+# meaning that they will all host Docker containers.  The identifier
+# "host0" also appears (by itself) under the "[consulservers]" label,
+# indicating that it will service as a "consul server".  Ansible 
+# will use these categorizations when it provisions and configures
+# each machine.  For context and to aid in navigation, the categories
+# defined in this file each match a YAML file of the same name in
+# the "playbooks" folder (a peer to this file), those "playbook files"
+# aggregate a set of actions or "tasks" to be applied to each of the machines
+# in the corresponding category.  These tasks are defined in an additional
+# sub-folder named "roles" (i.e., "playbooks/roles").
+#
+# Configuring this file is not sufficient to configure the entire Hyperledger
+# fabric instance to be deployed.  You'll also need to configure details of
+# the Fabric itself by specifying values of variables in group\_vars/all.yml
+# This is documented in group\_vars/README.md and in the 
+# group\_vars/all.yml, itself.  For instance, the number "peers" that will
+# participate in the Fabric needs to be specified.  This number can be
+# different from the number of Docker hosts (in the swarm) as each such
+# host is capable of hosting the execution of more than one Docker container
+# simultaneously (the actual assignment is up to the "swarm managers").    
 
 # All machines
-ansibletestclone ansible_ssh_host=10.12.34.92   ansible_user=daford
-thing1          ansible_ssh_host=10.12.34.10    ansible_user=daford
-tool            ansible_ssh_host=10.12.34.87    ansible_user=daford
+host0           ansible_ssh_host=10.12.34.10  ansible_user=daford  # thing1
+host1           ansible_ssh_host=10.12.34.87  ansible_user=daford  # tool
+host2           ansible_ssh_host=10.12.34.70  ansible_user=daford  # pender
+host3           ansible_ssh_host=10.12.34.92  ansible_user=daford  # atc
+host4           ansible_ssh_host=10.12.34.190 ansible_user=daford  # gravity
+host5           ansible_ssh_host=10.12.34.76  ansible_user=daford  # danbuntu
 
 [allmachines]
-ansibletestclone
-thing1
-tool
+host0
+host1
+host2
+host3
+host4
+host5
 
 # These are the machines that will participate in the Fabric deployment by
 # hosting Docker containers.
 [dockerhosts]
-ansibletestclone
-thing1
-tool
+host0
+host1
+host2
+host3
+host4
+host5
 
 # These are the machines that will serve as Consul servers.
 [consulservers]
-ansibletestclone
+host5
 
 # These are the machines that will serve as Consul clients.  These would 
 # be used in production environments.  Not currently used. DAF
 [consulclients]
-#tool
+#host2
 
 # These are the machines that will serve as Docker Swarm managers.  They
-# distribute Docker containers to the various "swarmnodes" to be hosted.
+# distribute Docker containers to the various "swarmnodes" to be hosted
+# see "[swarmnodes]" below.
 [swarmmanagers]
-ansibletestclone
+host5
 
 # These are the machines that will serve as Docker Swarm nodes.  They will
-# accept request from the Docker Swarm manager to execute Docker containers.
+# accept request from the Docker Swarm manager to host the execution of
+# Docker containers.
 [swarmnodes]
-ansibletestclone
-thing1
-tool
+host0
+host1
+host2
+host3
+host4
+host5
 
 # This is the machine that will launch the instance of the Fabric from a
-# generated "docker compose" file.  It will communicate with the Docker
-# Swarm manager which will then launch the containers.
+# "docker compose" file generated by Ansible from a set of template files.
+# This machine will communicate with the Docker Swarm manager which will 
+# then launch the containers.
 # There should be only one fabriclauncher!
 [fabriclaunchers]
-tool
+host5

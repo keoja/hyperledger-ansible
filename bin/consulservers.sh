@@ -1,2 +1,2 @@
 #!/bin/bash
-export ANSIBLE_NOCOWS=1; ansible-playbook -i fabrichosts playbooks/consulservers.yml
+export ANSIBLE_NOCOWS=1; ansible-playbook --ask-become-pass -i fabrichosts playbooks/consulservers.yml
