@@ -33,11 +33,9 @@ except:
         docker_py_installed=False
 
 def makeFacts(info):
-    return {'isActive': info['Swarm']['LocalNodeState'] == "active",
-            'numManagers': info['Swarm']['Managers'],
-            'numNodes':  info['Swarm']['Nodes'],
-            }
-
+    return {'is_active': info['Swarm']['LocalNodeState'] == "active" }
+    #return info
+    
 def main():
 
     module = AnsibleModule(
@@ -51,7 +49,7 @@ def main():
     if docker_py_installed:
        try: 
          info = Client().info()
-         module.exit_json(changed=True, ansible_facts=makeFacts(info))  
+         module.exit_json(changed=True, node=makeFacts(info))  
        except Exception as e:
          module.fail_json(msg=e.message)
     else:

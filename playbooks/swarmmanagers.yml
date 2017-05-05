@@ -7,7 +7,100 @@
   pre_tasks:
       - assert:
          that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
-  roles:
-    - {role: swarmhost,
-              is_swarm_manager: true
-      }
+# We want to keep the nodes in the swarm in-sync with the inventory
+# in the hosts file.  We do this by querying the swarm status of each
+# node that is a swarm manager and putting them into one of two groups
+# "active" (activeSwarmManagers) or "inactive".  If the active group is empty, we select one
+# of the nodes in the inactive group to be the swarm manager and start
+# (init) it.  If the active group is not empty, then we have an existing
+# swarm and we don't need to start (bootstrap) it.  In either case, once
+# the swarm is established, we have the nodes in the inactive group
+# join the swarm through an existing, active, swarm manager.  This will
+# support changes to the inventory file such as adding additional nodes
+# to the swarm.
+
+  tasks:
+    # First, we query each of the swarm manager nodes for their status,
+    # then we put each into either the active or inactive groups.
+    - name: Query the host for its status as a docker swarm node.
+      docker_swarm_node_status: 
+      register: swarm_status
+      when: is_unix
+      tags: [swarm, swarmmanager]
+    
+    - debug: var=swarm_status
+      tags: [swarm, swarmmanager]
+      
+    # Put the hosts into one of two groups  
+    # Active Managers
+    - name: Add the node to the active docker swarm manager group.
+      add_host:
+        hostname: "{{item}}"
+        groups: activeSwarmManagers  
+      with_items: "{{ansible_play_hosts}}"
+      when: "swarm_status.node.is_active"
+      run_once: true
+      tags: [swarm, swarmmanager]
+      
+    # Inactive Managers
+    - name: Add the node to the inactive docker swarm manager group.
+      add_host:
+        hostname: "{{item}}"
+        groups: inactiveSwarmManagers  
+      with_items: "{{ansible_play_hosts}}"
+      when: "not swarm_status.node.is_active"
+      run_once: true  
+      tags: [swarm, swarmmanager]
+  
+# If the group of active swarm managers is empty, we need to start
+# up a manager.
+- hosts: inactiveSwarmManagers[0]
+  become: true
+  tasks:
+    - name: Initialize a Swarm Manager (if needed)
+      shell: docker swarm init --advertise-addr='{{ ansible_all_ipv4_addresses | ipaddr(hl_addr_ip_filter) | random }}':2377
+      when: "'activeSwarmManagers' not in groups"
+      register: swarmStart
+      tags: [swarm, swarmmanager]
+      
+    - name: Add the new swarm manager to active group.
+      add_host:
+         hostname: "{{ansible_play_hosts[0]}}"
+         groups: activeSwarmManagers
+      when: swarmStart
+      tags: [swarm, swarmmanager]
+
+# Get the swarm "join-lokens" for managers and workers
+- hosts: activeSwarmManagers[0]
+  become: true
+  tasks:
+    - name: Get the swarm manager join token.
+      shell: docker swarm join-token -q manager
+      register: swarm_manager_join_token
+      tags: [swarm, swarmmanager]
+      
+    - name: Get the swarm worker join token.
+      shell: docker swarm join-token -q worker
+      register: swarm_worker_join_token
+      tags: [swarm, swarmmanager] 
+      
+    - name: Get the list of swarm manager IPs.
+      add_host:
+        hostname: "{{hostvars[item]['ansible_' + iface]['ipv4']['address'] }}"
+        groups: activeManagerIPs
+      with_items: "{{ ansible_play_hosts }}"
+      tags: [swarm, swarmmanager] 
+
+# Join any inactive manager nodes to the swarm as managers (skip any that already are in the swarm)
+- hosts: inactiveSwarmManagers:!activeSwarmManagers
+  become: true
+  vars:
+    token: "{{hostvars[groups['activeSwarmManagers'][0]]['swarm_manager_join_token']['stdout']}}"
+  tasks:
+    - name: Join any inactive swarm managers to the swarm.
+      shell: docker swarm init 
+             --advertise-addr='{{ ansible_all_ipv4_addresses | ipaddr(hl_addr_ip_filter) | random }}':2377 
+             --token={{token}}
+             {{ groups['activeManagerIPs'][0]}}:2377
+      tags: [swarm, swarmmanager]
+             
