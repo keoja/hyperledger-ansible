@@ -1,13 +1,137 @@
 ---
 # file: swarmmanagers.yml
-# These definitions are for machines that serve as hosts for swarm manager.
+# These definitions are for machines that serve as managers or nodes within a 
+# docker swarm.
+#
+# We want to keep the hosts in the swarm in-sync with the inventory
+# in the hosts file.  We do this by querying the swarm status of each
+# host that is listed as a swarm manager, and grouping them into 
+# "active" (active_swarm_managers-True) or "inactive" 
+# (active_swarm_managers-False) groups.  If the active group is 
+# empty, we select one of the nodes in the inactive group to be a swarm 
+# manager, and start (init) it to "bootstrap" the swarm by giving it a manager.
+# If the active group is not empty, then we have an existing swarm and
+# we don't need to bootstrap it.  In either case, once the swarm is 
+# established with a manager, we process the hosts in the inactive manager
+# group and have them join the swarm as managers.
+#
+# With the swarm established, we query a swarm manager for the token needed for
+# a swarm "node" to join the swarm.  
+#
+# The hosts that are listed as swarmnodes are then queried for their status
+# in the swarm, and are grouped, like the swarm managers, into active 
+# (active_swarm_nodes-True) and inactive (active_swarm_nodes-False) groups.  Those in 
+# the active group do not need attention, but those in the inactive group
+# are processed so that each joins the swarm (using the saved token, etc.).
 
 - hosts: swarmmanagers
   become: true
   pre_tasks:
       - assert:
          that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
-  roles:
-    - {role: swarmhost,
-              is_swarm_manager: true
-      }
+  tasks:
+    # First, we query each of the swarm manager nodes for their status,
+    # then we group them into active or inactive groups.
+    - name: Query the host(s) for their status as a docker swarm node.
+      docker_swarm_node_status: 
+      register: swarm_status
+      changed_when: false
+      when: is_unix
+      tags: [swarm]
+    
+    - name: Group the hosts into active and inactive groups of swarm managers.
+      group_by:
+        key: active_swarm_managers-{{swarm_status.node.is_active}}
+      when: is_unix
+      tags: [swarm]
+      
+  
+# If the group of active swarm managers is empty, we need to start
+# up a manager (bootstrap)
+- hosts: active_swarm_managers-False[0]
+  become: true
+  tasks:
+    - name: If needed, bootstrap the swarm by initializing a swarm manager.
+      shell: docker swarm init --advertise-addr='{{ ansible_all_ipv4_addresses | ipaddr(hl_addr_ip_filter) | random }}':2377
+      when: "'active_swarm_managers-True' not in groups"
+      register: bootstrap_swarm
+      tags: [swarm]
+      
+    - name: Add the newly active swarm manager to the group of hosts that are active swarm managers.
+      add_host:
+         hostname: "{{ansible_play_hosts[0]}}"
+         groups: active_swarm_managers-True
+      when: bootstrap_swarm
+      tags: [swarm]
+
+# Get the swarm "join-lokens" for managers and workers
+- hosts: active_swarm_managers-True[0]
+  become: true
+  tasks:
+    - name: Get the swarm "manager join token" needed below for hosts to join the swarm as a manager.
+      shell: docker swarm join-token -q manager
+      register: swarm_manager_join_token
+      changed_when: false
+      tags: [swarm]
+      
+    - name: Get the swarm "node join token" needed below for hosts to join the swarm as a node.
+      shell: docker swarm join-token -q worker
+      register: swarm_node_join_token
+      changed_when: false
+      when: is_unix
+      tags: [swarm] 
+      
+      # This retrieves the node_addr (IP Address of the swarm manager)
+    - name: Query the swarm manager for its status as a docker swarm node and get its IP Address.
+      docker_swarm_node_status: 
+      register: swarm_manager_status
+      changed_when: false
+      when: is_unix
+      tags: [swarm]
+        
+# Join any inactive manager hosts to the swarm as managers (skip any that already are in the swarm)
+- hosts: active_swarm_managers-False:!active_swarm_managers-True
+  become: true
+  vars:
+     swarm_manager_join_token : "{{hostvars[groups['active_swarm_managers-True'][0]]['swarm_manager_join_token']['stdout'] }}"
+     swarm_manager_ip : "{{hostvars[groups['active_swarm_managers-True'][0]]['swarm_manager_status']['node']['node_addr'] }}"
+  tasks:
+    - name: Join any inactive swarm managers to the swarm.
+      shell: docker swarm join 
+             --token={{swarm_manager_join_token}}
+             {{ swarm_manager_ip}}:2377
+      when: is_unix
+      tags: [swarm]
+             
+# Join inactive (worker) nodes to the swarm
+# Query the nodes to see which are active and which are inactive
+- hosts: swarmnodes
+  become: true
+  tasks:
+    - name: Query the (worker) hosts for their status as a swarm node.
+      docker_swarm_node_status: 
+      register: swarm_node_status
+      changed_when: false
+      when: is_unix
+      tags: [swarm]
+    
+    - name: Group the hosts into active and inactive groups of swarm nodes.
+      group_by:
+        key: active_swarm_nodes-{{swarm_node_status.node.is_active}}
+      when: is_unix
+      tags: [swarm]
+
+# Join the inactive nodes to the swarm      
+- hosts: active_swarm_nodes-False
+  become: true
+  vars:
+     swarm_node_join_token : "{{hostvars[groups['active_swarm_managers-True'][0]]['swarm_node_join_token']['stdout'] }}"
+     swarm_manager_ip : "{{hostvars[groups['active_swarm_managers-True'][0]]['swarm_manager_status']['node']['node_addr'] }}"
+  tasks:
+    - name: Join any inactive swarm node hosts to the swarm as nodes.
+      shell: docker swarm join 
+             --token={{swarm_node_join_token}}
+             {{ swarm_manager_ip}}:2377
+      when: is_unix
+      tags: [swarm]
+                          
