@@ -32,9 +32,23 @@ except:
     except:
         docker_py_installed=False
 
+def makeFacts2(info):
+    return info
+
+
 def makeFacts(info):
-    return {'is_active': info['Swarm']['LocalNodeState'] == "active" }
-    #return info
+    retValue = ""
+    is_active = info['Swarm']['LocalNodeState'] == "active"
+    
+    try:
+      node_addr = info['Swarm']['NodeAddr'] 
+
+      retValue = {'is_active': is_active,
+                  'node_addr': node_addr}
+    except Exception as e:
+      retValue = {'is_active': is_active }
+      
+    return retValue
     
 def main():
 
