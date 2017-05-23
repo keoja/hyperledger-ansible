@@ -24,16 +24,16 @@
            dest="/usr/local/bin/docker-compose"
            mode=0755
   when: is_linux
-  ignore_errors: yes
+#  ignore_errors: yes
   
-- name: Install docker-compose (pip)
+#- name: Install docker-compose (pip)
 #  pip: name=docker-compose state=present
-  command: pip install docker-compose
-  when: is_linux
-  ignore_errors: yes  
+#  command: pip install docker-compose
+#  when: is_linux
+#  ignore_errors: yes  
   
-- include: behave_4_noops.yml
-  when: "{{hl_fabric_type == 'behave_4_noops'}}"
+#- include: behave_4_noops.yml
+#  when: "{{hl_fabric_type == 'behave_4_noops'}}"
   
 - include: configurable.yml
   when: "{{hl_fabric_type == 'configurable'}}"  

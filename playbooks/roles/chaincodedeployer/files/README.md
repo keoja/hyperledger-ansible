@@ -1,4 +1,4 @@
-# Templates
+# Files
 
 Prose here.
 

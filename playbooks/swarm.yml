@@ -1,28 +1,36 @@
 ---
-# file: swarmmanagers.yml
-# These definitions are for machines that serve as managers or nodes within a 
-# docker swarm.
+# file: swarm.yml
+# This playbook establishes a Docker swarm using "Swarm Mode".  It creates both
+# the swarm managers and the swarm nodes, as specified in the inventory
+# in the "swarmmanagers" and "swarmnodes" groups.  Note that a host in
+# the inventory should only be in one group or the other; a swarm manager
+# will function as a "worker" in addition to its role as a manager so there
+# is no need to list it twice (you shouldn't).
 #
-# We want to keep the hosts in the swarm in-sync with the inventory
-# in the hosts file.  We do this by querying the swarm status of each
-# host that is listed as a swarm manager, and grouping them into 
+# When the swarm is configured and up-and-running, we want to keep the
+# hosts in the swarm in-sync with the contents of the inventory.  This 
+# will allow us modify the inventory, for example to add additional nodes, 
+# and then update the swarm while it is running.  We do this by dynamically
+# querying the swarm status ("active" or "inactive") of each host that is
+# listed as a swarm manager, and then dynamically grouping them into 
 # "active" (active_swarm_managers-True) or "inactive" 
 # (active_swarm_managers-False) groups.  If the active group is 
 # empty, we select one of the nodes in the inactive group to be a swarm 
-# manager, and start (init) it to "bootstrap" the swarm by giving it a manager.
-# If the active group is not empty, then we have an existing swarm and
+# manager, and start (init) it to "bootstrap" the swarm.  If the group of
+# active managers is not empty, then we have an existing swarm and
 # we don't need to bootstrap it.  In either case, once the swarm is 
 # established with a manager, we process the hosts in the inactive manager
 # group and have them join the swarm as managers.
 #
 # With the swarm established, we query a swarm manager for the token needed for
-# a swarm "node" to join the swarm.  
+# a swarm "node" to join the swarm as a worker.  
 #
 # The hosts that are listed as swarmnodes are then queried for their status
-# in the swarm, and are grouped, like the swarm managers, into active 
-# (active_swarm_nodes-True) and inactive (active_swarm_nodes-False) groups.  Those in 
-# the active group do not need attention, but those in the inactive group
-# are processed so that each joins the swarm (using the saved token, etc.).
+# in the swarm (i.e., "active" or "inactive"), and are grouped, like the
+#  swarm managers, into active (active_swarm_nodes-True) and inactive
+# (active_swarm_nodes-False) groups.  Those in the active group do not
+# need attention, but those in the inactive group are processed so that
+# each joins the swarm (using the saved token, etc.).
 
 - hosts: swarmmanagers
   become: true

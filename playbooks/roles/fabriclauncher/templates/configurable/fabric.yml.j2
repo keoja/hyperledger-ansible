@@ -1,16 +1,30 @@
-#{{ansible_managed}}
-version: '2'
-services: 
-  membersrvc: 
+# {{ ansible_managed }}
+version: "3"
+services:
+  membersvc0:
     image: {{fabriclauncher_msvc_image}}
     environment:
       - CORE_VM_ENDPOINT=http://{{fabriclauncher_swarm_overlay_network_endpoint_ip}}:{{fabriclauncher_swarm_overlay_network_endpoint_port}}
     command: membersrvc
+    deploy:
+      replicas: 1
+      restart_policy:
+         condition: on-failure
+    ports:
+      - 5000:5000
     networks:
       - {{fabriclauncher_swarm_overlay_network_name}}
-  vp: 
-    image: {{fabriclauncher_vpeer_image}}
-    environment:
+
+{% for number in range(0, fabriclauncher_num_validating_peers) %}
+  vp{{number}}:
+     image: {{fabriclauncher_vpeer_image}}
+     depends_on: 
+       - membersrvc0
+     environment: 
+      - CORE_PEER_ID=vp{{number}}
+      {% if number > 0 -%}
+      - CORE_PEER_DISCOVERY_ROOTNODE=vp0:30303
+      {% endif -%}
       - CORE_SECURITY_ENABLED={{fabriclauncher_core_security_enabled}}
       {% if fabriclauncher_core_security_enabled == 'true' -%}
       - CORE_PEER_PKI_ECA_PADDR=membersrvc0:50051
@@ -33,6 +47,12 @@ services:
       # TODO:  This is currently required due to BUG in variant logic based upon log level.
       - CORE_LOGGING_LEVEL=DEBUG
       # Startup of peer must be delayed to allow membersrvc to come up first
-    command: sh -c "sleep 5; peer node start"
-    networks:
+     command: sh -c "sleep 5; peer node start"
+     networks:
       - {{fabriclauncher_swarm_overlay_network_name}}
+      
+{% endfor %}
+
+networks:
+     {{fabriclauncher_swarm_overlay_network_name}}:
+        driver: overlay   

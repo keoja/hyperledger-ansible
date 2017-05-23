@@ -1,5 +1,3 @@
 dockerhost_tcp_port: "{{hl_docker_tcp_port}}"
 dockerhost_systemctl_dropin_dir: /etc/systemd/system/docker.service.d
-dockerhost_consul_ip: "{{hl_consul_server_ip}}"
-dockerhost_consul_port: "{{hl_consul_port}}"
 dockerhost_addr_ip_filter: "{{hl_addr_ip_filter}}"

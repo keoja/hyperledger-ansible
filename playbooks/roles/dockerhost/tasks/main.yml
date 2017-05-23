@@ -3,6 +3,7 @@
 # These are task definitions for configuring machines to host 
 # Docker containers.
 # See: https://docs.docker.com/engine/installation/linux/ubuntulinux/
+# See: https://docs.docker.com/engine/installation/linux/debian/#install-on-raspbian-raspberry-pi
 #
 - name: Updating/upgrading apt package information.
   apt: update_cache=yes upgrade=dist cache_valid_time={{cache_horizon}}
@@ -11,14 +12,28 @@
   
 - name: Install Docker dependencies.
   apt: pkg={{item}} state=latest
-  with_items: [apt-transport-https, ca-certificates]
-  when: is_linux
+  with_items: [apt-transport-https, ca-certificates, gnupg2, python-software-properties, python-pip]
+  when: is_apt_pkg_mgr
   
 - name: Add the key for the Docker repository.
   apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 
            id=58118E89F3A912897C070ADBF76221572C52609D
   ignore_errors: yes
   when: is_apt_pkg_mgr
+
+# See: https://docs.docker.com/engine/installation/linux/debian/#install-using-the-repository
+- name: Add Docker's offical GPG key
+  apt_key: url=https://download.docker.com/linux/debian/gpg state=present
+  ignore_errors: yes
+  when: is_raspbian and is_armhf
+  tags: [foo]
+ 
+- name: Add Docker Repository (armhf)
+  apt_repository: repo='deb [arch=armhf] https://apt.dockerproject.org/repo raspbian-{{ ansible_distribution_release }} main'
+                  state=present
+  ignore_errors: yes
+  when: is_raspbian and is_armhf
+  tags: [foo]
  
 - name: Add the Docker PPA (Ubuntu 15.10).
   apt_repository: repo='deb https://apt.dockerproject.org/repo ubuntu-wily main' 
@@ -70,12 +85,19 @@
 # But installing the "latest" will do the trick.
 - name: Install Docker.
   apt: pkg=docker-engine state=latest
-  when: is_apt_pkg_mgr and is_ubuntu
+  when: is_apt_pkg_mgr and ( is_ubuntu or is_raspbian) 
   tags: [apt, docker, docker-engine]
 
+# Not working. DAF
+#- name: Install Docker on Raspbian
+#  apt: pkg=docker state=latest
+#  when: is_raspbian
+#  when: false
+#  tags: [apt, docker, docker-engine]
+
 - name: Install Docker Community Edition (ce).
-  apt: pkg=docker-ce state=latest
-  when: is_apt_pkg_mgr and not is_ubuntu
+  apt: pkg=docker-ce state=latest allow_unauthenticated=yes
+  when: is_apt_pkg_mgr and not ( is_ubuntu or is_raspbian)
   tags: [apt, docker, docker-ce]
 
 # If UFW is being used on Linux, then it needs to be configured to enable
@@ -88,7 +110,7 @@
   file: path={{dockerhost_systemctl_dropin_dir}}
         state=directory
         owner=root group=root mode=755
-  when: is_ubuntu
+  when: is_debian
   tags: [docker, dockertcp]
 
 - name: Enable the Docker Daemon to communicate using tcp.
@@ -97,7 +119,7 @@
             owner=root group=root mode=644
   register: docker_config
   notify: Restart Docker
-  when: is_ubuntu
+  when: is_debian
   tags: [docker, dockertcp]
 
 - name: Reload Docker daemon configuration if necessary.

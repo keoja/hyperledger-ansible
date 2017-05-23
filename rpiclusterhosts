@@ -43,12 +43,11 @@
 # simultaneously (the actual assignment is up to the "swarm managers").    
 
 # All machines
-host0           ansible_ssh_host=10.12.34.10  ansible_user=daford  # thing1
-host1           ansible_ssh_host=10.12.34.87  ansible_user=daford  # tool
-host2           ansible_ssh_host=10.12.34.70  ansible_user=daford  # pender
-host3           ansible_ssh_host=10.12.34.92  ansible_user=daford  # atc
-host4           ansible_ssh_host=10.12.34.190 ansible_user=daford  # gravity
-host5           ansible_ssh_host=10.12.34.76  ansible_user=daford  # danbuntu
+host0           ansible_ssh_host=10.12.34.170  ansible_user=ansible  
+host1           ansible_ssh_host=10.12.34.171  ansible_user=ansible  
+host2           ansible_ssh_host=10.12.34.172  ansible_user=ansible  
+host3           ansible_ssh_host=10.12.34.173  ansible_user=ansible  
+host4           ansible_ssh_host=10.12.34.174  ansible_user=ansible  
 
 [allmachines]
 host0
@@ -56,7 +55,6 @@ host1
 host2
 host3
 host4
-host5
 
 # These are the machines that will participate in the Fabric deployment by
 # hosting Docker containers.
@@ -66,19 +64,18 @@ host1
 host2
 host3
 host4
-host5
 
 # These are the machines that will serve as Docker Swarm managers.  They
 # distribute Docker containers to the various "swarmnodes" to be hosted
 # see "[swarmnodes]" below.
 [swarmmanagers]
-host5
+host0
 
 # These are the machines that will serve as Docker Swarm nodes.  They will
 # accept request from the Docker Swarm manager to host the execution of
 # Docker containers.
 [swarmnodes]
-host0
+#host0
 host1
 host2
 host3
@@ -90,4 +87,4 @@ host4
 # then launch the containers.
 # There should be only one fabriclauncher!
 [fabriclauncher]
-host5
+host0

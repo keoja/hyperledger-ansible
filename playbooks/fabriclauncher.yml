@@ -5,7 +5,7 @@
 # https://www.docker.io/
 # For this playbook, also see: http://docs.docker.io/en/latest/installation/ubuntulinux/
 
-- hosts: fabriclaunchers
+- hosts: fabriclauncher
   become: true
   pre_tasks:
       - assert:

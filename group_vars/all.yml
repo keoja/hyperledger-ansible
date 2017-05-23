@@ -16,6 +16,7 @@ hl_num_validating_peers: 4
 
 # These two variables specify the Docker images to use when
 # creating Docker containers.
+# See: https://hub.docker.com/r/hyperledger/
 # See: https://hub.docker.com/r/yeasy/hyperledger-fabric-peer/
 # See: https://hub.docker.com/r/yeasy/hyperledger-fabric-membersrvc/
 ### You may want/need to change these.
@@ -63,20 +64,14 @@ hl_identifier: hyperledger
 # Docker
 hl_docker_tcp_port: 2375
 
-# Consul
-hl_consul_server_ip: "{{hl_main_server_ip}}"
-hl_consul_port: 8500
-hl_consul_dns_port: 8600
-hl_consul_datacenter_identifier: keoja0
-
 # Swarm Overlay network 
 hl_swarm_manager_ip: "{{hl_main_server_ip}}"
 hl_swarm_manager_port: 4000
 hl_overlay_network_name: "{{hl_identifier}}"
 hl_overlay_network_addr_ip_filter: "{{hl_overlay_network_subnet}}.0/24"
 
-# Docker Compose
-hl_docker_compose_version: 1.7.1
+# Docker Compose (as of 05/10/2017)
+hl_docker_compose_version: 1.13.0
 hl_docker_host_ip: "{{hl_swarm_manager_ip}}"
 hl_docker_host_port: "{{hl_swarm_manager_port}}"
 
@@ -109,14 +104,17 @@ is_ubuntu_16_10: "{{ is_ubuntu and ansible_distribution_version == '16.10' }}"
 is_ubuntu_17_04: "{{ is_ubuntu and ansible_distribution_version == '17.04' }}"
 is_ubuntu_17_10: "{{ is_ubuntu and ansible_distribution_version == '17.10' }}"
 
-is_debian: "{{ ansible_distribution == 'Debian' or is_ubuntu or is_linuxmint }}" 
+is_raspbian: "{{ ansible_lsb.id == 'Raspbian' }}"
 is_fedora: "{{ ansible_pkg_mgr == 'yum' }}"
 is_linuxmint: "{{ ansible_distribution == 'Linuxmint' }}"
+is_debian: "{{ ansible_distribution == 'Debian' or is_ubuntu or is_linuxmint or is_raspbian }}" 
 is_linux:  "{{ is_debian or is_ubuntu or is_fedora or is_arch }}"
 is_macosx: "{{ ansible_distribution == 'MacOSX'}}"
 is_unix: "{{ is_linux or is_macosx }}"
 
 is_virtual_machine: "{{ (ansible_virtualization_role is defined) and (ansible_virtualization_role in [ 'guest' ]) }}"
+
+is_armhf: "{{ ansible_architecture == 'armv6l' }}" 
 
 # Package Managers
 #----------------------------------------------------------------
