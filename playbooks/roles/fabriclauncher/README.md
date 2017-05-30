@@ -21,7 +21,7 @@ Available variables are listed below, along with default values:
 |fabric | behave_4_noops | The fabric to launch. |
 |fabriclauncher_config_dir |  ~{{user}}/Fabric | The top-level directory to store the Docker Compose files on the host. |  
 |fabriclauncher_behave_4_noops_dir |  behave_4_noops | The directory where the compose files for the behave_4_noops fabric are stored on the host. |
-|fabriclauncher_docker_compose_version |  1.7.1 | The default version of [Docker Compose](https://docs.docker.com/compose/) to install. |
+|fabriclauncher_docker_compose_version |  1.13.1 | The default version of [Docker Compose](https://docs.docker.com/compose/) to install. |
 |fabriclauncher_vpeer_image |  "yeasy/hyperledger-peer" | The default Docker Image for the Hyperledger peer container to use. See [https://github.com/yeasy/docker-hyperledger-peer](https://github.com/yeasy/docker-hyperledger-peer) |
 |fabriclauncher_msvc_image |  "yeasy/hyperledger-membersrvc"  | The default Docker Image for the Hyperledger member service container to use. See: [https://github.com/yeasy/docker-hyperledger-membersrvc](https://github.com/yeasy/docker-hyperledger-membersrvc) |
 
