@@ -16,9 +16,6 @@ fabriclauncher_core_security_enabled: false
 fabriclauncher_membersrvc_container_name_root: membersrvc
 fabriclauncher_vpeer_container_name_root: vpeer
 
-fabriclauncher_docker_host_ip: "{{hl_docker_host_ip}}"
-fabriclauncher_docker_host_port: "{{hl_docker_host_port}}"
-
 fabriclauncher_swarm_overlay_network_name: "{{hl_overlay_network_name}}"
 fabriclauncher_swarm_overlay_network_endpoint_ip: "{{hl_overlay_network_subnet}}.1"
 fabriclauncher_swarm_overlay_network_endpoint_port: "{{hl_docker_tcp_port}}"

@@ -76,8 +76,6 @@ hl_overlay_network_addr_ip_filter: "{{hl_overlay_network_subnet}}.0/24"
 
 # Docker Compose (as of 05/10/2017)
 hl_docker_compose_version: 1.13.0
-hl_docker_host_ip: "{{hl_swarm_manager_ip}}"
-hl_docker_host_port: "{{hl_swarm_manager_port}}"
 
 # Ansible
 #----------------------------------------------------------------
