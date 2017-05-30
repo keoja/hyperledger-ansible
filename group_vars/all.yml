@@ -7,12 +7,12 @@
 # Hyperledger
 #----------------------------------------------------------------
 # The following variables control the configuration of the Hyperledger
-# fabric running on docker, including the configuraiton of Consul, 
-# Docker Swarm and Docker Compose.
+# fabric running on docker, including the configuraiton of Docker Swarm 
+# and Docker Compose.
 
-# This is the number of validating peers that will be deployed
+# This is the number of peers that will be deployed
 ### You will likely want to change this for your environment/network.
-hl_num_validating_peers: 4
+hl_num_peers: 4
 
 # These two variables specify the Docker images to use when
 # creating Docker containers.
@@ -20,8 +20,13 @@ hl_num_validating_peers: 4
 # See: https://hub.docker.com/r/yeasy/hyperledger-fabric-peer/
 # See: https://hub.docker.com/r/yeasy/hyperledger-fabric-membersrvc/
 ### You may want/need to change these.
-hl_vpeer_docker_image: "yeasy/hyperledger-fabric-peer"
-hl_msvc_docker_image: "yeasy/hyperledger-fabric-membersrvc" 
+hl_vpeer_docker_image: "hyperledger/fabric-peer"
+hl_msvc_docker_image: "hyperledger/fabric-membersrvc" 
+hl_orderer_docker_image: "hyperledger/fabric-orderer"
+hl_ca_docker_image: "hyperleger/fabric-ca"
+hl_couch_db_docker_image: "hyperledger/fabric-couchdb"
+hl_kafka_docker_image: "hyperledger/fabric-kafka"
+hl_zookepper_docker_image: "hyplerledger/fabric-zookeeper"
 
 # This variable specifies the IP4 subnet of your network.
 ### You will need to change this for your environment/network.
@@ -32,8 +37,7 @@ hl_network_subnet: "10.12.34"
 ### You many need to change this for your environmnet/network.
 hl_overlay_network_subnet: 10.12.36
 
-# This variable specifies the IP4 address for the machine that will run both the
-# the consul and swarm managers.  
+# This variable specifies the IP4 address for the machine that will run swarm managers.  
 ### You will need to change this for your environment/network.
 hl_main_server_ip: "{{hl_network_subnet}}.76"
 

@@ -11,7 +11,7 @@ fabriclauncher_msvc_image: "{{hl_msvc_docker_image}}"
 
 fabriclauncher_configurable_dir: configurable
 
-fabriclauncher_num_validating_peers: "{{hl_num_validating_peers}}"
+fabriclauncher_num_validating_peers: "{{hl_num_peers}}"
 fabriclauncher_core_security_enabled: false
 fabriclauncher_membersrvc_container_name_root: membersrvc
 fabriclauncher_vpeer_container_name_root: vpeer
