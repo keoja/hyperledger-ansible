@@ -1,0 +1,56 @@
+#jinja2: lstrip_blocks: True
+# ---------------------------------------------------------------------------
+# "OrdererOrgs" - Definition of organizations managing orderer nodes
+# ---------------------------------------------------------------------------
+OrdererOrgs:
+{% for org in orderOrgs %}
+  # ---------------------------------------------------------------------------
+  # {{org.name}}
+  # ---------------------------------------------------------------------------
+  - Name: {{org.name}}
+    Domain: {{org.domain}}
+    # ---------------------------------------------------------------------------
+    # "Specs" - See PeerOrgs below for complete description
+    # ---------------------------------------------------------------------------
+    Specs:
+      {% for spec in org.specs %}
+      - Hostname: {{spec.hostname}}
+        {% if spec.commonname is defined %}
+        CommonName: {{spec.commonname}}
+        {% endif %}
+      {% endfor %}
+{% endfor %}
+# ---------------------------------------------------------------------------
+# "PeerOrgs" - Definition of organizations managing peer nodes
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  {% for org in peerOrgs %}
+  # ---------------------------------------------------------------------------
+  # {{org.name}}
+  # ---------------------------------------------------------------------------
+  - Name: {{org.name}}
+    Domain: {{org.domain}}
+    {% if org.specs is defined %}
+    Specs:
+      {% for spec in org.specs %}
+        - Hostname: {{spec.hostname}}
+        {% if spec.commonname is defined %}
+        - CommonName: {{spec.commonname}}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if org.template is defined %}
+    Template:
+      Count: {{ org.template.count }}
+      {% if org.template.start is defined %}
+      Start: {{ org.template.start }}
+      {% endif %}
+      {% if org.template.start is defined %}
+      Hostname: {{ org.template.hostname }}
+      {% endif %}
+    {% endif %}
+    {% if org.users is defined %}
+    Users:
+      Count: {{ org.users.count }}
+    {% endif %}
+{% endfor %}
