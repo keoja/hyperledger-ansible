@@ -1,0 +1,139 @@
+#jinja2: lstrip_blocks: True
+---
+# {{ansible_managed}}
+#
+# This file is organized into four sections: Profile, Organizations, Orderer,
+# and Application. It makes heavy use of YAML "node anchors" and references 
+# to such from the Profile section to the other sections.  This is used for 
+# instance to define the "boiler plate" for the default configuration of an
+# "Orderer" ("&OrdererDefaults") in the Orderer section (see below) which
+# is then referenced using "<<: *OrdererDefaults" in the Profile section.  
+# See: http://www.yaml.org/spec/1.2/spec.html#id2785586  
+#
+# The Profile section is a collection of configuration artifact definitions,
+# each of which can be referenced by separate invocations of the confgtxgen 
+# tool to generate the various files (artifacts) needed to configure instances 
+# of Hyperledger Fabric.  In particular, profiles can be defined for the 
+# "genesis" block for the Orderer, and for Channels.
+#
+# The Organizations section defines the details of each "organization" 
+# referenced by definitions in the Profile section.  
+#
+# The Orderer section defines default values for "orderers."  These will 
+# be referenced in the Profile section, where default values will be 
+# overridden and missing values provided.
+#
+# The Application section defines default values referenced by profiles 
+# defining Channels.
+ 
+#------------------------------------------------------------------------------
+# Profile Definitions.
+#
+# Each profile defined below specifies a configuration to be processed by 
+# the configtxgen tool.
+# 
+#------------------------------------------------------------------------------
+
+Profile:
+  {% for profile in profiles %}
+  {{profile.name}}:
+  {% if profile.orderer is defined %}
+    Orderer:
+       <<: *OrdererDefaults
+       Organizations:
+           {{ profile.orderOrg }}
+  {% endif %}
+  {% if profile.consortiums is defined %}
+  Consortiums:
+    {% for consortium in profile.consortiums %}
+    {{consortium.name}}:
+       {% if consortium.organizations is defined %}
+       Organizations:
+         {% for organization in consortium.organizations %}
+           - *{{organization.name}}
+         {% endfor %}
+       {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if profile.consortium is defined %}
+  Consortium: {{consortium.name}}
+  Application:
+     <<: *ApplicationDefaults
+     Organizations:
+        {% for org in profile.organizations %}
+          - *{{org}}
+        {% endfor %}
+  {% endif %}
+  {% endfor %}
+
+#------------------------------------------------------------------------------
+# Organizations
+#
+# Define the characteristics of each of the "organizations."  These are referenced
+# in the profiles above by their "id."
+#------------------------------------------------------------------------------
+
+Organizations:
+  {% for org in organizations %}
+  - &{{org.id}}
+    Name: {{org.name}}
+    ID: {{org.msp}}
+    MSPDir: {{org.mspdir}}
+    BCCSP:
+      Default: SW
+      SW:
+          Hash: SHA2
+          Security: 256
+          FileKeyStore:
+              KeyStore:
+    {% if org.anchorpeers is defined %}
+    AnchorPeers:
+      {% for peer in org.anchorpeers %}
+      -HOST: {{peer.host}}
+       Port: {{peer.port}}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+#------------------------------------------------------------------------------
+# Orderer
+#
+# Initialization values for a configuration transaction and Orderer genesis block.
+#------------------------------------------------------------------------------
+  
+Orderer: &OrdererDefaults
+
+ 	# "solo" or "kafka"
+    OrdererType: {{orderer.type}}
+    Addresses:
+       {% for addr in orderer.addresses %}
+       - {{addr}}
+       {% endfor %}
+    BatchTimeout: 2s
+    BatchSize:
+       MaxMessageCount: 10
+       AbsoluteMaxBytes: 99 MB
+       PerferredMaxBytes: 512 KB
+    # Maximum number of channels the Orderer will support, a value of 0
+    # means no limit.   
+    MaxChanels: 0
+    Kafka:
+      Brokers:
+        {% for broker in orderer.kafka.brokers %}
+        - {{broker}}
+        {% endfor %}
+    Organizations:
+      {% for org in orderer.organizations %}
+        - {{org}}
+      {% endfor %}
+      
+#------------------------------------------------------------------------------      
+# Application
+#
+# Default application values.
+#------------------------------------------------------------------------------
+
+Application: %ApplicationDefaults
+
+   Organizations:
+   
