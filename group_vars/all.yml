@@ -98,32 +98,32 @@ cache_horizon: 7200
 
 # System identification
 #----------------------------------------------------------------
-is_arch: "{{ ansible_distribution  == 'Archlinux' }}"
-is_ubuntu: "{{ ansible_distribution  == 'Ubuntu' }}"
-is_ubuntu_15_10: "{{ is_ubuntu and ansible_distribution_version == '15.10' }}"
-is_ubuntu_16_04: "{{ is_ubuntu and ansible_distribution_version == '16.04' }}"
-is_ubuntu_16_10: "{{ is_ubuntu and ansible_distribution_version == '16.10' }}"
-is_ubuntu_17_04: "{{ is_ubuntu and ansible_distribution_version == '17.04' }}"
-is_ubuntu_17_10: "{{ is_ubuntu and ansible_distribution_version == '17.10' }}"
+is_arch: "ansible_distribution  == 'Archlinux"
+is_ubuntu: "ansible_distribution  == 'Ubuntu"
+is_ubuntu_15_10: "is_ubuntu and ansible_distribution_version == '15.10"
+is_ubuntu_16_04: "is_ubuntu and ansible_distribution_version == '16.04"
+is_ubuntu_16_10: "is_ubuntu and ansible_distribution_version == '16.10"
+is_ubuntu_17_04: "is_ubuntu and ansible_distribution_version == '17.04"
+is_ubuntu_17_10: "is_ubuntu and ansible_distribution_version == '17.10"
 
-is_raspbian: "{{ ansible_lsb.id == 'Raspbian' }}"
-is_fedora: "{{ ansible_pkg_mgr == 'yum' }}"
-is_linuxmint: "{{ ansible_distribution == 'Linuxmint' }}"
-is_debian: "{{ ansible_distribution == 'Debian' or is_ubuntu or is_linuxmint or is_raspbian }}" 
-is_linux:  "{{ is_debian or is_ubuntu or is_fedora or is_arch }}"
-is_macosx: "{{ ansible_distribution == 'MacOSX'}}"
-is_unix: "{{ is_linux or is_macosx }}"
+is_raspbian: "ansible_lsb.id == 'Raspbian"
+is_fedora: "ansible_pkg_mgr == 'yum"
+is_linuxmint: "ansible_distribution == 'Linuxmint"
+is_debian: "ansible_distribution == 'Debian' or is_ubuntu or is_linuxmint or is_raspbian " 
+is_linux:  "is_debian or is_ubuntu or is_fedora or is_arch "
+is_macosx: "ansible_distribution == 'MacOSX'"
+is_unix: "is_linux or is_macosx "
 
-is_virtual_machine: "{{ (ansible_virtualization_role is defined) and (ansible_virtualization_role in [ 'guest' ]) }}"
+is_virtual_machine: "(ansible_virtualization_role is defined) and (ansible_virtualization_role in [ 'guest' ]) "
 
-is_armhf: "{{ ansible_architecture == 'armv6l' }}" 
+is_armhf: "ansible_architecture == 'armv6l" 
 
 # Package Managers
 #----------------------------------------------------------------
-is_apt_pkg_mgr: "{{ ansible_pkg_mgr == 'apt' }}"        # Debian
-is_yum_pkg_mgr: "{{ ansible_pkg_mgr == 'yum' }}"        # Fedora, CentOS
-is_pacman_pkg_mgr: "{{ ansible_pkg_mgr == 'pacman' }}"  # Arch
-is_opkg_pkg_mgr: "{{ ansible_pkg_mgr == 'opkg' }}"      # Angstrom
+is_apt_pkg_mgr: "ansible_pkg_mgr == 'apt"        # Debian
+is_yum_pkg_mgr: "ansible_pkg_mgr == 'yum"        # Fedora, CentOS
+is_pacman_pkg_mgr: "ansible_pkg_mgr == 'pacman"  # Arch
+is_opkg_pkg_mgr: "ansible_pkg_mgr == 'opkg"      # Angstrom
 
 
 
