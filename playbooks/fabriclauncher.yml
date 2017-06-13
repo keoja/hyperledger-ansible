@@ -7,6 +7,47 @@
 
 - hosts: fabriclauncher
   become: true
+  vars:
+    - fabric_profiles: [ {
+                      name: "OneOrgGenesis",
+                      orderer: { defaultstag: "OrdererDefaults", organizations: ["OrdererOrg"]},
+                      ordererorg: "bar",
+                      consortiums: [{name: "eSigConsortium", organizations : ["Org1"] }],
+                  },
+                  {
+                     name: "OneOrgChannel",
+                     consortium: "eSigConsortium",
+                     application: { tag: "ApplicationDefaults", organizations: ["Org1"]},
+                  }
+                ]
+                
+    - fabric_organizations: [
+                     {
+                       tag : "OrderOrg",
+                       name : "OrderOrg",
+                       id : "OrdererMSP",
+                       mspdir : "crypto-config/ordererOrganizations/blocledger.com/msp",
+                     },
+                     {
+                       tag: "Org1",
+                       name: "Org1MSP",
+                       id: "Org1MSP",
+                       mspdir: "crypto-config/peerOrganizations/org1.blocledger.com/msp",
+                       anchorpeers : [{ "host" : "peer0.org1.foobar.com", "port" : "7051"}]
+                     }
+                ]
+    - fabric_ordererdefaults: {
+                     tag: "OrdererDefaults",
+                     type: "solo",
+                     addresses: ["10.12.34.10:7050"],
+                     batch: { timeout: "2s", maxmsgcount: "10", maxbytes: "99 MB", preferredmaxbytes: "512 KB"},
+                     maxchannels: 0,
+                     kafka: {"brokers" : [ "127.0.0.1:9092"]},
+                     organizations: []
+               }
+    - fabric_applicationdefaults: {
+                     tag: "ApplicationDefaults"
+      }
   pre_tasks:
       - assert:
          that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
@@ -14,5 +55,9 @@
   roles:
     - { role: fabriclauncher,
           user: "{{ansible_user}}",
-          group: "{{'staff' if is_macosx else ansible_user}}"
+          group: "{{'staff' if is_macosx else ansible_user}}",
+          profiles: "{{fabric_profiles}}",
+          organizations: "{{fabric_organizations}}",
+          ordererdefaults: "{{fabric_ordererdefaults}}",
+          applicationdefaults: "{{fabric_applicationdefaults}}"
       }

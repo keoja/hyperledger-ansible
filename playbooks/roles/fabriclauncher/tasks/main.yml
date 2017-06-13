@@ -8,7 +8,18 @@
   file: path={{fabriclauncher_config_dir}}
         state=directory
         owner={{user}} group={{group}} mode=755
-  when: is_linux
+  when: is_unix
+  tags: [configtxgen]
+  
+- name: Generate the file {{fabriclauncher_config_dir}}/configtxgen
+  template: src=configtx.yaml.j2
+            dest={{fabriclauncher_config_dir}}/configtxgen.yaml
+            owner={{user}} group={{group}} mode=644
+  when: is_unix         
+  tags: [configtxgen]
+  
+  
+  
   
 # Docker Compose
 #-----------------------------------------------------------
@@ -19,11 +30,11 @@
 # the command line via "pip install docker-compose" See the website. DAF
 # See: https://docs.docker.com/compose/install/
 # curl -L https://github.com/docker/compose/releases/download/1.7.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-- name: Install docker-compose (v{{fabriclauncher_docker_compose_version}})
-  get_url: url="https://github.com/docker/compose/releases/download/{{fabriclauncher_docker_compose_version}}/docker-compose-{{ansible_system}}-{{ansible_architecture}}"
-           dest="/usr/local/bin/docker-compose"
-           mode=0755
-  when: is_linux
+#- name: Install docker-compose (v{{fabriclauncher_docker_compose_version}})
+#  get_url: url="https://github.com/docker/compose/releases/download/{{fabriclauncher_docker_compose_version}}/docker-compose-{{ansible_system}}-{{ansible_architecture}}"
+#           dest="/usr/local/bin/docker-compose"
+#           mode=0755
+#  when: is_linux
 #  ignore_errors: yes
   
 #- name: Install docker-compose (pip)
@@ -35,6 +46,6 @@
 #- include: behave_4_noops.yml
 #  when: "{{hl_fabric_type == 'behave_4_noops'}}"
   
-- include: configurable.yml
-  when: "{{hl_fabric_type == 'configurable'}}"  
+#- include: configurable.yml
+#  when: "{{hl_fabric_type == 'configurable'}}"  
       
