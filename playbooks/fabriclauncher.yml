@@ -8,6 +8,7 @@
 - hosts: fabriclauncher
   become: true
   vars:
+    # Variables for configtx.yaml.j2
     - fabric_profiles: [ {
                       name: "OneOrgGenesis",
                       orderer: { defaultstag: "OrdererDefaults", organizations: ["OrdererOrg"]},
@@ -48,6 +49,67 @@
     - fabric_applicationdefaults: {
                      tag: "ApplicationDefaults"
       }
+    # Variables for fabric-docker-compose.yml.j2
+    - fabric_compose: {
+                     ca: {
+                       name: "ca",
+                       domain: "blocledger.com",
+                       image: "hyperledger/fabric-ca:x86_64-1.0.0-alpha2",
+                       env: {
+                         ca_home: "/etc/hyperledger/fabric-ca-server",
+                         ca_server_tls_enabled: "true",
+                         ca_server_tls_certfile: "/etc/hyperledger/fabric-ca-server-config/ca.org1.blocledger.com-cert.pem",
+                         ca_server_tls_keyfile: "/etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY"
+                       },
+                       ports: ["7054:7054"],
+                       command: "sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.blocledger.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY -b admin:adminpw -d'",
+                       volumes: ["./crypto-config/peerOrganizations/org1.blocledger.com/ca/:/etc/hyperledger/fabric-ca-server-config",
+                                 "./fabricca/tlsOrg1:/etc/hyperledger/fabric-ca-server"]
+                     },
+                     orderer: {
+                       name: "orderer",
+                       domain: "blocledger.com",
+                       image: "hyperledger/fabric-orderer:x86_64-1.0.0-alpha2",
+                       ports: ["7050:7050"],
+                       workingdir: "/opt/gopath/src/github.com/hyperledger/fabric",
+                       command: "orderer",
+                       volumes: ["./orderer.block:/var/hyperledger/orderer/orderer.block",
+                                 "./crypto-config/ordererOrganizations/blocledger.com/orderers/orderer.blocledger.com:/var/hyperledger/orderer"
+                       ]
+                     },
+                     peers: { 
+                       image: "hyperledger/fabric-peer:x86_64-1.0.0-alpha2",
+                       command: "peer node start --peer-defaultchain=false",
+                       organizations: [
+                        {
+                          numpeers: 2,
+                          peername: "peer",
+                          domain: "org1.blocledger.com",
+                          env: {
+                            localmspid: "Org1MSP",
+                            vm_endpoint: "unix:///host/var/run/docker.sock",
+                            vm_docker_hostconfig_networkmode: "fixturesv1_default",
+                            logging_level: "DEBUG",
+                            tls_enabled: "true",
+                            endorser_enabled: "true",
+                            gossip_useleaderelection: "true",
+                            gossip_orgleader: "false",
+                            gossip_skiphandshake: "true",
+                            gossip_profile_enabled: "true",
+                            tls_cert_file: "/etc/hyperledger/fabric/msp/signcerts/peer0.org1.blocledger.com-cert.pem",
+                            tls_key_file: "/etc/hyperledger/fabric/msp/keystore/PEER0_ORG1_PRIVATE_KEY",
+                            tls_rootcert_file: "/etc/hyperledger/fabric/msp/cacerts/ca.org1.blocledger.com-cert.pem"
+                          },
+                          
+                          
+                          workingdir: "/opt/gopath/src/github.com/hyperledger/fabric",
+                          
+                        }
+                       ]
+                     }
+       }
+    
+    
   pre_tasks:
       - assert:
          that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"

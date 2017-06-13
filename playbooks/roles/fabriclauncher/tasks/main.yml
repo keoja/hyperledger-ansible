@@ -18,7 +18,12 @@
   when: is_unix         
   tags: [configtxgen]
   
-  
+- name: Generate Docker Compose file fabric-docker-compose.yml and install it in "{{fabriclauncher_config_dir}}/"
+  template: src=fabric-docker-compose.yml.j2
+        dest={{fabriclauncher_config_dir}}/fabric-docker-compose.yml
+        owner={{user}} group={{group}} mode=644
+  when: is_unix
+  tags: [docker]  
   
   
 # Docker Compose
