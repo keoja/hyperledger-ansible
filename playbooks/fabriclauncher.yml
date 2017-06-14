@@ -8,18 +8,23 @@
 - hosts: fabriclauncher
   become: true
   vars:
+  
+    - consortiumname: "KeojaConsortium"
+    - ordererorgname: "keoja"
+    - peerorgname: "{{ordererorgname}}"
+    - domain:  "keoja.com"
+    - dockertag: "x86_64-1.0.0-beta"
     # Variables for crypto-config.yaml.j2
     - fabric_crypto_config: {ordererorgs: [ 
-                                { name: "orderorg1", domain: "org1.foobar.com", 
-                                  specs: [ { hostname: "zip", commonname: "zap"} ],
-                                  template: { count: 2, start: 5, hostname: "foo"}
+                                { name: "{{ordererorgname}}", domain: "{{domain}}", 
+                                  #specs: [ { hostname: "zip", commonname: "zap"} ],
+                                  template: { count: 1}
                                 }
                                ],
                              peerorgs: [ 
-                                { name: "peerOrg1", domain: "org1.foo.com",
-                                  specs: [ { hostname: "zip", commonname: "zap"} ],
-                                  template: { count: 2, start: 5, hostname: "foo"},
-                                  numusers: 1
+                                { name: "{{peerorgname}}", domain: "{{domain}}",
+                                  #specs: [ { hostname: "zip", commonname: "zap"} ],
+                                  template: { count: 1 }
                                 }
                                ]
                             }
@@ -27,14 +32,14 @@
     # Variables for configtx.yaml.j2
     - fabric_profiles: [ {
                       name: "OneOrgGenesis",
-                      orderer: { defaultstag: "OrdererDefaults", organizations: ["OrdererOrg"]},
-                      ordererorg: "bar",
-                      consortiums: [{name: "eSigConsortium", organizations : ["Org1"] }],
+                      orderer: { defaultstag: "OrdererDefaults", organizations: ["{{ordererorgname}}"]},
+                      ordererorg: "{{ordererorgname}}",
+                      consortiums: [{name: "{{consortiumname}}", organizations : ["{{ordererorgname}}"] }],
                   },
                   {
                      name: "OneOrgChannel",
-                     consortium: "eSigConsortium",
-                     application: { tag: "ApplicationDefaults", organizations: ["Org1"]},
+                     consortium: "{{consortiumname}}",
+                     application: { tag: "ApplicationDefaults", organizations: ["{{ordererorgname}}"]},
                   }
                 ]
                 
@@ -43,20 +48,20 @@
                        tag : "OrderOrg",
                        name : "OrderOrg",
                        id : "OrdererMSP",
-                       mspdir : "crypto-config/ordererOrganizations/blocledger.com/msp",
+                       mspdir : "crypto-config/ordererOrganizations/{{domain}}/msp",
                      },
                      {
-                       tag: "Org1",
-                       name: "Org1MSP",
-                       id: "Org1MSP",
-                       mspdir: "crypto-config/peerOrganizations/org1.blocledger.com/msp",
-                       anchorpeers : [{ "host" : "peer0.org1.foobar.com", "port" : "7051"}]
+                       tag: "{{ordererorgname}}",
+                       name: "{{ordererorgname}}MSP",
+                       id: "{{ordererorgname}}MSP",
+                       mspdir: "crypto-config/peerOrganizations/{{domain}}/msp",
+                       anchorpeers : [{ "host" : "peer0.{{domain}}", "port" : "7051"}]
                      }
                 ]
     - fabric_ordererdefaults: {
                      tag: "OrdererDefaults",
                      type: "solo",
-                     addresses: ["10.12.34.10:7050"],
+                     addresses: ["orderer.{{domain}}:7050"],
                      batch: { timeout: "2s", maxmsgcount: "10", maxbytes: "99 MB", preferredmaxbytes: "512 KB"},
                      maxchannels: 0,
                      kafka: {"brokers" : [ "127.0.0.1:9092"]},
@@ -69,23 +74,23 @@
     - fabric_compose: {
                      ca: {
                        name: "ca",
-                       domain: "blocledger.com",
-                       image: "hyperledger/fabric-ca:x86_64-1.0.0-alpha2",
+                       domain: "{{domain}}",
+                       image: "hyperledger/fabric-ca:{{dockertag}}",
                        env: {
                          ca_home: "/etc/hyperledger/fabric-ca-server",
                          ca_server_tls_enabled: "true",
-                         ca_server_tls_certfile: "/etc/hyperledger/fabric-ca-server-config/ca.org1.blocledger.com-cert.pem",
+                         ca_server_tls_certfile: "/etc/hyperledger/fabric-ca-server-config/ca.{{domain}}-cert.pem",
                          ca_server_tls_keyfile: "/etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY"
                        },
                        ports: ["7054:7054"],
-                       command: "sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.org1.blocledger.com-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY -b admin:adminpw -d'",
+                       command: "sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.{{domain}}-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY -b admin:adminpw -d'",
                        volumes: ["./crypto-config/peerOrganizations/org1.blocledger.com/ca/:/etc/hyperledger/fabric-ca-server-config",
                                  "./fabricca/tlsOrg1:/etc/hyperledger/fabric-ca-server"]
                      },
                      orderer: {
                        name: "orderer",
-                       domain: "blocledger.com",
-                       image: "hyperledger/fabric-orderer:x86_64-1.0.0-alpha2",
+                       domain: "{{domain}}",
+                       image: "hyperledger/fabric-orderer:{{dockertag}}",
                        ports: ["7050:7050"],
                        workingdir: "/opt/gopath/src/github.com/hyperledger/fabric",
                        command: "orderer",
@@ -94,13 +99,13 @@
                        ]
                      },
                      peers: { 
-                       image: "hyperledger/fabric-peer:x86_64-1.0.0-alpha2",
+                       image: "hyperledger/fabric-peer:{{dockertag}}",
                        command: "peer node start --peer-defaultchain=false",
                        organizations: [
                         {
                           numpeers: 2,
                           peername: "peer",
-                          domain: "org1.blocledger.com",
+                          domain: "{{domain}}",
                           env: {
                             localmspid: "Org1MSP",
                             vm_endpoint: "unix:///host/var/run/docker.sock",
