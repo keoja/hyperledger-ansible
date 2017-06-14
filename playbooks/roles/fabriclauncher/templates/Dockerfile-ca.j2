@@ -1,0 +1,5 @@
+FROM {{fabric_compose.ca.image}}
+
+ARG caserverdonfigdir
+
+ADD $caserverdonfigdir /etc/hyperledger/fabric-ca-server-config/

@@ -25,6 +25,20 @@
   when: is_unix         
   tags: [configtxgen]
 
+- name: Generate the ca docker file.
+  template: src=Dockerfile-ca.j2
+            dest={{fabriclauncher_config_dir}}/Dockerfile-ca
+            owner={{user}} group={{group}} mode=644
+  when: is_unix         
+  tags: [docker,cryptoconfig]
+
+- name: Generate the orderer docker file.
+  template: src=Dockerfile-orderer.j2
+            dest={{fabriclauncher_config_dir}}/Dockerfile-orderer
+            owner={{user}} group={{group}} mode=644
+  when: is_unix         
+  tags: [docker,cryptoconfig]
+
 - name: Generate the peer docker file.
   template: src=Dockerfile-peer.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-peer

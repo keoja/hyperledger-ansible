@@ -5,9 +5,12 @@ version: "3"
 services:
 # CA
   ca.{{fabric_compose.ca.domain}}:
-    image: {{fabric_compose.ca.image}}
+    build:
+      context: .
+      dockerfile: Dockerfile-ca
+      args:
+        caserverdonfigdir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/peerorgname.{{domain}}/ca/
     environment:
-      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_TLS_ENABLED={{fabric_compose.ca.env.ca_server_tls_enabled}}
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.{{fabric_compose.ca.domain}}-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{fabric_compose.ca.env.ca_server_tls_keyfile}}
@@ -27,7 +30,7 @@ services:
   {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}:
     build:
       context: .
-      dockerfile: Dockerfile-peer
+      dockerfile: Dockerfile-orderer
       args:
         ordererdir: {{fabriclauncher_config_dir}}/crypto-config/ordererOrganizations/{{domain}}/orderers/orderer.{{domain}}
     environment:
@@ -53,7 +56,6 @@ services:
       - ca.{{fabric_compose.ca.domain}}
 
 # Peers
-
 {% for org in fabric_compose.peers.organizations %}
 
  {% for number in range(0, org.numpeers) %}
@@ -99,8 +101,10 @@ services:
        - {{org.peername}}{{i}}.{{org.domain}}
        {% endfor %}
        {% endif %}
+       
+    #----------------------------------------------------------------------------
+    
   {% endfor %}
-  
 {% endfor %}
 
 networks:
