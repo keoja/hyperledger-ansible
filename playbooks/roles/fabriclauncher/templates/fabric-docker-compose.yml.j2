@@ -3,13 +3,14 @@
 version: "3"
 
 services:
-  {{fabric_compose.ca.name}}.{{fabric_compose.ca.domain}}:
+# CA
+  ca.{{fabric_compose.ca.domain}}:
     image: {{fabric_compose.ca.image}}
     environment:
-      - FABRIC_CA_HOME={{fabric_compose.ca.env.ca_home}}
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
       - FABRIC_CA_SERVER_TLS_ENABLED={{fabric_compose.ca.env.ca_server_tls_enabled}}
-      - FABRIC_CA_SERVER_TLS_CERTFILE={{fabric_compose.ca.env.ca_server_tls_certfile}}
-      - FABRIC_CA_SERVER_TLS_KEYFILE={{fabric_compose.ca.env.ca_server_tls_keyfile}}
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.{{fabric_compose.ca.domain}}-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{fabric_compose.ca.env.ca_server_tls_keyfile}}
     ports:
     {% for port in fabric_compose.ca.ports %}
       - {{port}}
@@ -19,24 +20,39 @@ services:
      {% for volume in fabric_compose.ca.volumes %}
       - {{volume}}
     {% endfor %}
-    container_name: {{fabric_compose.ca.name}}.{{fabric_compose.ca.domain}}
+    container_name: ca.{{fabric_compose.ca.domain}}
+
+# Orderer
 
   {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}:
-    image: {{fabric_compose.orderer.image}}
+    build:
+      context: .
+      dockerfile: Dockerfile-peer
+      args:
+        ordererdir: {{fabriclauncher_config_dir}}/crypto-config/ordererOrganizations/{{domain}}/orderers/orderer.{{domain}}
     environment:
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/orderer.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      # TLS
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/ORDERER_PRIVATE_KEY
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/orderer.{{domain}}-cert.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/ca.{{domain}}-cert.pem]
     working_dir: {{fabric_compose.orderer.workingdir}}
     ports:
     {% for port in fabric_compose.orderer.ports %}
       - {{port}}
     {% endfor %}
     command: {{fabric_compose.orderer.command}}
-    volumes:
-     {% for volume in fabric_compose.orderer.volumes %}
-      - {{volume}}
-    {% endfor %}
     container_name: {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}
     depends_on: 
-      - {{fabric_compose.ca.name}}.{{fabric_compose.ca.domain}}
+      - ca.{{fabric_compose.ca.domain}}
+
+# Peers
 
 {% for org in fabric_compose.peers.organizations %}
 
@@ -76,7 +92,7 @@ services:
        - /var/run/:/host/var/run/
     container_name: {{org.peername}}{{number}}.{{org.domain}}
     depends_on:
-       - {{fabric_compose.ca.name}}.{{fabric_compose.ca.domain}}
+       - ca.{{fabric_compose.ca.domain}}
        - {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}
        {% if number > 0 %}
        {% for i in range(0, number) %}
