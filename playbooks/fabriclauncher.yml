@@ -8,6 +8,22 @@
 - hosts: fabriclauncher
   become: true
   vars:
+    # Variables for crypto-config.yaml.j2
+    - fabric_crypto_config: {ordererorgs: [ 
+                                { name: "orderorg1", domain: "org1.foobar.com", 
+                                  specs: [ { hostname: "zip", commonname: "zap"} ],
+                                  template: { count: 2, start: 5, hostname: "foo"}
+                                }
+                               ],
+                             peerorgs: [ 
+                                { name: "peerOrg1", domain: "org1.foo.com",
+                                  specs: [ { hostname: "zip", commonname: "zap"} ],
+                                  template: { count: 2, start: 5, hostname: "foo"},
+                                  numusers: 1
+                                }
+                               ]
+                            }
+    
     # Variables for configtx.yaml.j2
     - fabric_profiles: [ {
                       name: "OneOrgGenesis",
@@ -100,8 +116,6 @@
                             tls_key_file: "/etc/hyperledger/fabric/msp/keystore/PEER0_ORG1_PRIVATE_KEY",
                             tls_rootcert_file: "/etc/hyperledger/fabric/msp/cacerts/ca.org1.blocledger.com-cert.pem"
                           },
-                          
-                          
                           workingdir: "/opt/gopath/src/github.com/hyperledger/fabric",
                           
                         }
@@ -109,15 +123,14 @@
                      }
        }
     
-    
   pre_tasks:
       - assert:
          that: "ansible_version.major >= {{hl_minimum_ansible_version_major}} and ansible_version.minor >= {{hl_minimum_ansible_version_minor}}"
-  
   roles:
     - { role: fabriclauncher,
           user: "{{ansible_user}}",
           group: "{{'staff' if is_macosx else ansible_user}}",
+          cryptoconfig: "{{fabric_crypto_config}}",
           profiles: "{{fabric_profiles}}",
           organizations: "{{fabric_organizations}}",
           ordererdefaults: "{{fabric_ordererdefaults}}",

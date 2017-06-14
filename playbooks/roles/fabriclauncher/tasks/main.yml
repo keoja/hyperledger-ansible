@@ -9,9 +9,16 @@
         state=directory
         owner={{user}} group={{group}} mode=755
   when: is_unix
-  tags: [configtxgen]
+  tags: [cryptoconfig, configtxgen]
   
-- name: Generate the file {{fabriclauncher_config_dir}}/configtxgen
+- name: Generate the file {{fabriclauncher_config_dir}}/crypto-config.yaml
+  template: src=crypto-config.yaml.j2
+            dest={{fabriclauncher_config_dir}}/crypto-config.yaml
+            owner={{user}} group={{group}} mode=644
+  when: is_unix         
+  tags: [cryptoconfig]
+  
+- name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
   template: src=configtx.yaml.j2
             dest={{fabriclauncher_config_dir}}/configtxgen.yaml
             owner={{user}} group={{group}} mode=644
