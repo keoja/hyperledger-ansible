@@ -6,6 +6,7 @@
 # For this playbook, also see: http://docs.docker.io/en/latest/installation/ubuntulinux/
 
 - hosts: fabriclauncher
+  gather_facts: false
   become: true
   vars:
   

@@ -8,6 +8,7 @@
   file: path={{fabriclauncher_config_dir}}
         state=directory
         owner={{user}} group={{group}} mode=755
+  delegate_to: localhost        
   when: is_unix
   tags: [cryptoconfig, configtxgen]
   
@@ -15,13 +16,29 @@
   template: src=crypto-config.yaml.j2
             dest={{fabriclauncher_config_dir}}/crypto-config.yaml
             owner={{user}} group={{group}} mode=644
+  delegate_to: localhost
   when: is_unix         
   tags: [cryptoconfig]
+  
+#- name: Generate the certificates and keys from {{fabriclauncher_config_dir}}/crypto-config.yaml
+# ./bin/cryptogen generate --config=./crypto-config.yaml
+
+- name: Retrieve the generated certificates and keys from ./crypto-config
+  hl_crypto_keys: path=~daford/Fabric/crypto-config
+  register: cryptokeys
+  delegate_to: localhost
+  when: is_unix
+  tags: [cryptoconfig2]
+  
+- debug: 
+    var: cryptokeys
+  tags: [cryptoconfig2]
   
 - name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
   template: src=configtx.yaml.j2
             dest={{fabriclauncher_config_dir}}/configtxgen.yaml
             owner={{user}} group={{group}} mode=644
+  delegate_to: localhost
   when: is_unix         
   tags: [configtxgen]
 
@@ -29,6 +46,7 @@
   template: src=Dockerfile-ca.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-ca
             owner={{user}} group={{group}} mode=644
+  delegate_to: localhost
   when: is_unix         
   tags: [docker,cryptoconfig]
 
@@ -36,6 +54,7 @@
   template: src=Dockerfile-orderer.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-orderer
             owner={{user}} group={{group}} mode=644
+  delegate_to: localhost            
   when: is_unix         
   tags: [docker,cryptoconfig]
 
@@ -43,6 +62,7 @@
   template: src=Dockerfile-peer.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-peer
             owner={{user}} group={{group}} mode=644
+  delegate_to: localhost            
   when: is_unix         
   tags: [docker,cryptoconfig]
   
@@ -50,6 +70,7 @@
   template: src=fabric-docker-compose.yml.j2
         dest={{fabriclauncher_config_dir}}/fabric-docker-compose.yml
         owner={{user}} group={{group}} mode=644
+  delegate_to: localhost        
   when: is_unix
   tags: [docker]  
   
