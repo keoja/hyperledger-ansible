@@ -1,0 +1,370 @@
+{
+    "ordererOrganizations": {
+        "keoja.com": {
+            "ca": {
+                "certificates": [
+                    {
+                        "filename": "ca.keoja.com-cert.pem",
+                        "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/ca/ca.keoja.com-cert.pem"
+                    }
+                ],
+                "keys": [
+                    {
+                        "filename": "95924332db51ea88f152ce23cd74059af0fc676d9d4422679a5ed2d7cb9288d0_sk",
+                        "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/ca/95924332db51ea88f152ce23cd74059af0fc676d9d4422679a5ed2d7cb9288d0_sk"
+                    }
+                ]
+            },
+            "msp": {
+                "admincerts": {
+                    "certificates": [
+                        {
+                            "filename": "Admin@keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/msp/admincerts/Admin@keoja.com-cert.pem"
+                        }
+                    ]
+                },
+                "cacerts": {
+                    "certificates": [
+                        {
+                            "filename": "ca.keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                        }
+                    ]
+                },
+                "keystore": {},
+                "signcerts": {
+                    "certificates": [
+                        {
+                            "filename": "ca.keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/msp/signcerts/ca.keoja.com-cert.pem"
+                        }
+                    ]
+                }
+            },
+            "orderers": {
+                "orderer0.keoja.com": {
+                    "msp": {
+                        "admincerts": {
+                            "certificates": [
+                                {
+                                    "filename": "Admin@keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/msp/admincerts/Admin@keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "cacerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "keystore": {
+                            "keys": [
+                                {
+                                    "filename": "698512fb3a25d133469256cbdcb078c78648e7da7b59af2f698c9927c52c6fd0_sk",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/msp/keystore/698512fb3a25d133469256cbdcb078c78648e7da7b59af2f698c9927c52c6fd0_sk"
+                                }
+                            ]
+                        },
+                        "signcerts": {
+                            "certificates": [
+                                {
+                                    "filename": "orderer0.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/msp/signcerts/orderer0.keoja.com-cert.pem"
+                                }
+                            ]
+                        }
+                    },
+                    "tls": {
+                        "certificates": [
+                            {
+                                "filename": "ca.crt",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/tls/ca.crt"
+                            },
+                            {
+                                "filename": "server.crt",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/tls/server.crt"
+                            }
+                        ],
+                        "keys": [
+                            {
+                                "filename": "server.key",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/orderers/orderer0.keoja.com/tls/server.key"
+                            }
+                        ]
+                    }
+                }
+            },
+            "users": {
+                "Admin@keoja.com": {
+                    "msp": {
+                        "admincerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/msp/admincerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "cacerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "keystore": {
+                            "keys": [
+                                {
+                                    "filename": "8f8db8a1241ab98ee99d042c00432260e8ad614a4ed09ef3d82ef5cf3deda7ac_sk",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/msp/keystore/8f8db8a1241ab98ee99d042c00432260e8ad614a4ed09ef3d82ef5cf3deda7ac_sk"
+                                }
+                            ]
+                        },
+                        "signcerts": {
+                            "certificates": [
+                                {
+                                    "filename": "Admin@keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/msp/signcerts/Admin@keoja.com-cert.pem"
+                                }
+                            ]
+                        }
+                    },
+                    "tls": {
+                        "certificates": [
+                            {
+                                "filename": "ca.crt",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/tls/ca.crt"
+                            },
+                            {
+                                "filename": "server.crt",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/tls/server.crt"
+                            }
+                        ],
+                        "keys": [
+                            {
+                                "filename": "server.key",
+                                "path": "/home/daford/Fabric/crypto-config/ordererOrganizations/keoja.com/users/Admin@keoja.com/tls/server.key"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    "peerOrganizations": {
+        "keoja.com": {
+            "ca": {
+                "certificates": [
+                    {
+                        "filename": "ca.keoja.com-cert.pem",
+                        "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/ca/ca.keoja.com-cert.pem"
+                    }
+                ],
+                "keys": [
+                    {
+                        "filename": "57a1280960b73cb932c9c6a7eaf560e91ab95d751a30fa16a65831782bfa6931_sk",
+                        "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/ca/57a1280960b73cb932c9c6a7eaf560e91ab95d751a30fa16a65831782bfa6931_sk"
+                    }
+                ]
+            },
+            "msp": {
+                "admincerts": {
+                    "certificates": [
+                        {
+                            "filename": "Admin@keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/msp/admincerts/Admin@keoja.com-cert.pem"
+                        }
+                    ]
+                },
+                "cacerts": {
+                    "certificates": [
+                        {
+                            "filename": "ca.keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                        }
+                    ]
+                },
+                "keystore": {},
+                "signcerts": {
+                    "certificates": [
+                        {
+                            "filename": "ca.keoja.com-cert.pem",
+                            "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/msp/signcerts/ca.keoja.com-cert.pem"
+                        }
+                    ]
+                }
+            },
+            "peers": {
+                "peer0.keoja.com": {
+                    "msp": {
+                        "admincerts": {
+                            "certificates": [
+                                {
+                                    "filename": "Admin@keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/msp/admincerts/Admin@keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "cacerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "keystore": {
+                            "keys": [
+                                {
+                                    "filename": "f954952d59350b4c645a028b485ddc52b10390cad2be323a6e3654a4a8b37b5b_sk",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/msp/keystore/f954952d59350b4c645a028b485ddc52b10390cad2be323a6e3654a4a8b37b5b_sk"
+                                }
+                            ]
+                        },
+                        "signcerts": {
+                            "certificates": [
+                                {
+                                    "filename": "peer0.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/msp/signcerts/peer0.keoja.com-cert.pem"
+                                }
+                            ]
+                        }
+                    },
+                    "tls": {
+                        "certificates": [
+                            {
+                                "filename": "ca.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/tls/ca.crt"
+                            },
+                            {
+                                "filename": "server.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/tls/server.crt"
+                            }
+                        ],
+                        "keys": [
+                            {
+                                "filename": "server.key",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer0.keoja.com/tls/server.key"
+                            }
+                        ]
+                    }
+                },
+                "peer1.keoja.com": {
+                    "msp": {
+                        "admincerts": {
+                            "certificates": [
+                                {
+                                    "filename": "Admin@keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/msp/admincerts/Admin@keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "cacerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "keystore": {
+                            "keys": [
+                                {
+                                    "filename": "312a087f4796314678626fe65090fd9dcf08f7d45bd4552687af01f9fe1b8a9b_sk",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/msp/keystore/312a087f4796314678626fe65090fd9dcf08f7d45bd4552687af01f9fe1b8a9b_sk"
+                                }
+                            ]
+                        },
+                        "signcerts": {
+                            "certificates": [
+                                {
+                                    "filename": "peer1.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/msp/signcerts/peer1.keoja.com-cert.pem"
+                                }
+                            ]
+                        }
+                    },
+                    "tls": {
+                        "certificates": [
+                            {
+                                "filename": "ca.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/tls/ca.crt"
+                            },
+                            {
+                                "filename": "server.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/tls/server.crt"
+                            }
+                        ],
+                        "keys": [
+                            {
+                                "filename": "server.key",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/peers/peer1.keoja.com/tls/server.key"
+                            }
+                        ]
+                    }
+                }
+            },
+            "users": {
+                "Admin@keoja.com": {
+                    "msp": {
+                        "admincerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/msp/admincerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "cacerts": {
+                            "certificates": [
+                                {
+                                    "filename": "ca.keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/msp/cacerts/ca.keoja.com-cert.pem"
+                                }
+                            ]
+                        },
+                        "keystore": {
+                            "keys": [
+                                {
+                                    "filename": "9d927795e187117d2a8e0be520e3f8409220f57e65ec0007cee559ad0a4f406b_sk",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/msp/keystore/9d927795e187117d2a8e0be520e3f8409220f57e65ec0007cee559ad0a4f406b_sk"
+                                }
+                            ]
+                        },
+                        "signcerts": {
+                            "certificates": [
+                                {
+                                    "filename": "Admin@keoja.com-cert.pem",
+                                    "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/msp/signcerts/Admin@keoja.com-cert.pem"
+                                }
+                            ]
+                        }
+                    },
+                    "tls": {
+                        "certificates": [
+                            {
+                                "filename": "ca.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/tls/ca.crt"
+                            },
+                            {
+                                "filename": "server.crt",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/tls/server.crt"
+                            }
+                        ],
+                        "keys": [
+                            {
+                                "filename": "server.key",
+                                "path": "/home/daford/Fabric/crypto-config/peerOrganizations/keoja.com/users/Admin@keoja.com/tls/server.key"
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}

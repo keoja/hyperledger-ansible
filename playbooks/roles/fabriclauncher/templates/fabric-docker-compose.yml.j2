@@ -26,13 +26,16 @@ services:
     container_name: ca.{{fabric_compose.ca.domain}}
 
 # Orderer
-
-  {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}:
+{# The template only handles one order. DAF #}
+  {% set fq_orderer_name = fabric_compose.orderer.name~ '0' ~ '.' ~ fabric_compose.orderer.domain %}
+  {{fq_orderer_name}}:
     build:
       context: .
       dockerfile: Dockerfile-orderer
       args:
-        orderer_dir: {{fabriclauncher_config_dir}}/crypto-config/ordererOrganizations/{{fabric_compose.orderer.domain}}/orderers/orderer.{{fabric_compose.orderer.domain}}
+        signcert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].path}}
+        privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].path}}
+        cacert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].path}}
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -42,9 +45,9 @@ services:
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/ORDERER_PRIVATE_KEY
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/orderer.{{fabric_compose.orderer.domain}}-cert.pem
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/ca.{{fabric_compose.orderer.domain}}-cert.pem]
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].filename}}
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].filename}}
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].filename}}]
     working_dir: {{fabric_compose.orderer.workingdir}}
     ports:
     {% for port in fabric_compose.orderer.ports %}
@@ -99,7 +102,7 @@ services:
     container_name: {{org.peername}}{{number}}.{{org.domain}}
     depends_on:
        - ca.{{fabric_compose.ca.domain}}
-       - {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}
+       - {{fq_orderer_name}}
        {% if number > 0 %}
        {% for i in range(0, number) %}
        - {{org.peername}}{{i}}.{{org.domain}}

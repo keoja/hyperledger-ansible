@@ -54,6 +54,9 @@
 - set_fact: certificates_and_keys="{{ cryptokeys.certificates_and_keys }}"
   tags: [cryptoconfig2]
 
+- debug: var=certificates_and_keys
+  tags: [cryptoconfig2]
+  
 - name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
   template: src=configtx.yaml.j2
             dest={{fabriclauncher_config_dir}}/configtxgen.yaml

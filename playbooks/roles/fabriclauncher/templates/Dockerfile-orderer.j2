@@ -1,8 +1,12 @@
 FROM {{fabric_compose.orderer.image}}
 
-ARG orderer_dir
+ARG signcert_path
+ARG privatekey_path
+ARG cacert_path
 
 ADD orderer.block /etc/hyperledger/orderer/
-ADD $orderer_dir /etc/hyperledger/orderer
 
+ADD $signcert_path /etc/hyperledger/orderer/msp/signcerts/
+ADD $privatekey_path /etc/hyperledger/orderer/msp/keystore/
+ADD $cacert_path /etc/hyperledger/orderer/msp/cacerts/
 
