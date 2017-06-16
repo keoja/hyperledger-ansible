@@ -1,9 +1,9 @@
 FROM {{fabric_compose.peers.image}}
 
-ARG peernum
-ARG mspdir
+ARG peer_num
+ARG msp_dir
 
-ADD $mspdir /etc/hyperledger/fabric/msp
+ADD $msp_dir /etc/hyperledger/fabric/msp
 
-LABEL peernum=$peernum
+LABEL peer_num=$peer_num
 

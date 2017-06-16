@@ -9,7 +9,7 @@ services:
       context: .
       dockerfile: Dockerfile-ca
       args:
-        caserverdonfigdir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/peerorgname.{{domain}}/ca/
+        ca_server_config_dir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/peer_orgname.{{fabric_compose.ca.domain}}/ca/
     environment:
       - FABRIC_CA_SERVER_TLS_ENABLED={{fabric_compose.ca.env.ca_server_tls_enabled}}
       - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.{{fabric_compose.ca.domain}}-cert.pem
@@ -32,7 +32,7 @@ services:
       context: .
       dockerfile: Dockerfile-orderer
       args:
-        ordererdir: {{fabriclauncher_config_dir}}/crypto-config/ordererOrganizations/{{domain}}/orderers/orderer.{{domain}}
+        orderer_dir: {{fabriclauncher_config_dir}}/crypto-config/ordererOrganizations/{{fabric_compose.orderer.domain}}/orderers/orderer.{{fabric_compose.orderer.domain}}
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -43,8 +43,8 @@ services:
       # TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/ORDERER_PRIVATE_KEY
-      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/orderer.{{domain}}-cert.pem
-      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/ca.{{domain}}-cert.pem]
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/orderer.{{fabric_compose.orderer.domain}}-cert.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/ca.{{fabric_compose.orderer.domain}}-cert.pem]
     working_dir: {{fabric_compose.orderer.workingdir}}
     ports:
     {% for port in fabric_compose.orderer.ports %}
@@ -65,8 +65,8 @@ services:
       context: .
       dockerfile: Dockerfile-peer
       args:
-        peernum: {{number}}
-        mspdir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/{{peerorgname}}.{{domain}}/peers/{{org.peername}}{{number}}.{{domain}}/msp
+        peer_num: {{number}}
+        msp_dir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/{{peer_orgname}}.{{org.domain}}/peers/{{org.peername}}{{number}}.{{org.domain}}/msp
     environment:
        - CORE_PEER_ID={{org.peername}}{{number}}.{{org.domain}}
        - CORE_PEER_ADDRESS={{org.peername}}{{number}}.{{org.domain}}:7051
@@ -84,9 +84,9 @@ services:
        - CORE_PEER_GOSSIP_ORGLEADER={{org.env.gossip_orgleader}}
        - CORE_PEER_GOSSIP_SKIPHANDSHAKE={{org.env.gossip_skiphandshake}}
        - CORE_PEER_PROFILE_ENABLED={{org.env.gossip_profile_enabled}}
-       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/{{org.peername}}{{number}}.{{domain}}-cert.pem
+       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/{{org.peername}}{{number}}.{{org.domain}}-cert.pem
        - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER_PRIVATEKEY_HERE
-       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.{{domain}}-cert.pem
+       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.{{fabric_compose.ca.domain}}-cert.pem
     working_dir: {{org.workingdir}}
     ports:
     command: {{fabric_compose.peers.command}}

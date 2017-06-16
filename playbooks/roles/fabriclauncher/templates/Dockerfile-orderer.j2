@@ -1,8 +1,8 @@
 FROM {{fabric_compose.orderer.image}}
 
-ARG ordererdir
+ARG orderer_dir
 
 ADD orderer.block /etc/hyperledger/orderer/
-ADD $ordererdir /etc/hyperledger/orderer
+ADD $orderer_dir /etc/hyperledger/orderer
 
 

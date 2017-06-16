@@ -16,15 +16,36 @@
   template: src=crypto-config.yaml.j2
             dest={{fabriclauncher_config_dir}}/crypto-config.yaml
             owner={{user}} group={{group}} mode=644
+  register: cc
   delegate_to: localhost
   when: is_unix         
-  tags: [cryptoconfig]
+  tags: [cryptoconfig2]
   
-#- name: Generate the certificates and keys from {{fabriclauncher_config_dir}}/crypto-config.yaml
-# ./bin/cryptogen generate --config=./crypto-config.yaml
+- name: Remove the cryptogen output folder {{fabriclauncher_config_dir}}/crypto-config
+  file: path={{fabriclauncher_config_dir}}/crypto-config state=absent
+  delegate_to: localhost
+  when: cc.changed
+  tags: [cryptoconfig2]  
 
-- name: Retrieve the generated certificates and keys from ./crypto-config
-  cryptogen_extract: path=~daford/Fabric/crypto-config
+- name: Test to see if the cryptogen output folder {{fabriclauncher_config_dir}}/crypto-config exists
+  stat: path={{fabriclauncher_config_dir}}/crypto-config
+  register: folder
+  ignore_errors: true
+  changed_when: folder.changed
+  delegate_to: localhost
+  when: is_unix
+  tags: [cryptoconfig2]
+
+- name: Generate the certificates and keys from {{fabriclauncher_config_dir}}/crypto-config.yaml
+  command: chdir={{fabriclauncher_config_dir}}
+           /home/daford/bin/cryptogen generate --config={{fabriclauncher_config_dir}}/crypto-config.yaml
+  become_user: "{{user}}"
+  delegate_to: localhost
+  when: folder.stat.exists == False
+  tags: [cryptoconfig2]
+  
+- name: Retrieve the generated certificates and keys from {{fabriclauncher_config_dir}}/crypto-config
+  cryptogen_extract: path={{fabriclauncher_config_dir}}/crypto-config
   register: cryptokeys
   delegate_to: localhost
   when: is_unix
@@ -72,7 +93,7 @@
         owner={{user}} group={{group}} mode=644
   delegate_to: localhost        
   when: is_unix
-  tags: [docker]  
+  tags: [docker,cryptoconfig2]  
   
   
 # Docker Compose

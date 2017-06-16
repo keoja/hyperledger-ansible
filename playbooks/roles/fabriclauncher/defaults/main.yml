@@ -2,7 +2,7 @@
 # defaults file for fabriclauncher role
 fabriclauncher_default_fabric: behave_4_noops
 fabric: behave_4_noops
-fabriclauncher_config_dir: ~{{user}}/Fabric
+fabriclauncher_config_dir: /home/daford/Fabric
 fabriclauncher_behave_4_noops_dir: behave_4_noops
 fabriclauncher_docker_compose_version: "{{hl_docker_compose_version}}"
 

@@ -10,22 +10,23 @@
   become: true
   vars:
   
-    - consortiumname: "KeojaConsortium"
-    - ordererorgname: "keoja"
-    - peerorgname: "{{ordererorgname}}"
+    - consortium_name: "KeojaConsortium"
+    - orderer_org_name: "keoja"
+    - peer_orgname: "{{orderer_org_name}}"
+    - num_peers: 2
     - domain:  "keoja.com"
     - dockertag: "x86_64-1.0.0-beta"
     # Variables for crypto-config.yaml.j2
     - fabric_crypto_config: {ordererorgs: [ 
-                                { name: "{{ordererorgname}}", domain: "{{domain}}", 
+                                { name: "{{orderer_org_name}}", domain: "{{domain}}", 
                                   #specs: [ { hostname: "zip", commonname: "zap"} ],
                                   template: { count: 1}
                                 }
                                ],
                              peerorgs: [ 
-                                { name: "{{peerorgname}}", domain: "{{domain}}",
+                                { name: "{{peer_orgname}}", domain: "{{domain}}",
                                   #specs: [ { hostname: "zip", commonname: "zap"} ],
-                                  template: { count: 1 }
+                                  template: { count: "{{num_peers}}" }
                                 }
                                ]
                             }
@@ -33,29 +34,29 @@
     # Variables for configtx.yaml.j2
     - fabric_profiles: [ {
                       name: "OneOrgGenesis",
-                      orderer: { defaultstag: "OrdererDefaults", organizations: ["{{ordererorgname}}"]},
-                      ordererorg: "{{ordererorgname}}",
-                      consortiums: [{name: "{{consortiumname}}", organizations : ["{{ordererorgname}}"] }],
+                      orderer: { defaultstag: "OrdererDefaults", organizations: ["{{orderer_org_name}}"]},
+                      ordererorg: "{{orderer_org_name}}",
+                      consortiums: [{name: "{{consortium_name}}", organizations : ["{{orderer_org_name}}"] }],
                   },
                   {
                      name: "OneOrgChannel",
-                     consortium: "{{consortiumname}}",
-                     application: { tag: "ApplicationDefaults", organizations: ["{{ordererorgname}}"]},
+                     consortium: "{{consortium_name}}",
+                     application: { tag: "ApplicationDefaults", organizations: ["{{orderer_org_name}}"]},
                   }
                 ]
                 
     - fabric_organizations: [
                      {
                        tag : "OrderOrg",
-                       name : "{{ordererorgname}}",
+                       name : "{{orderer_org_name}}",
                        id : "OrderOrgMSP",
-                       mspdir : "crypto-config/ordererOrganizations/{{domain}}/msp",
+                       msp_dir : "crypto-config/ordererOrganizations/{{domain}}/msp",
                      },
                      {
-                       tag: "{{ordererorgname}}",
-                       name: "{{ordererorgname}}MSP",
-                       id: "{{ordererorgname}}MSP",
-                       mspdir: "crypto-config/peerOrganizations/{{domain}}/msp",
+                       tag: "{{orderer_org_name}}",
+                       name: "{{orderer_org_name}}MSP",
+                       id: "{{orderer_org_name}}MSP",
+                       msp_dir: "crypto-config/peerOrganizations/{{domain}}/msp",
                        anchorpeers : [{ "host" : "peer0.{{domain}}", "port" : "7051"}]
                      }
                 ]
@@ -97,7 +98,7 @@
                        command: "peer node start --peer-defaultchain=false",
                        organizations: [
                         {
-                          numpeers: 2,
+                          numpeers: "{{num_peers}}",
                           peername: "peer",
                           domain: "{{domain}}",
                           env: {
