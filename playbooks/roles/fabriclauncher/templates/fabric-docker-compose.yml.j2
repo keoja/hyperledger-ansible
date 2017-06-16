@@ -60,13 +60,17 @@ services:
 
  {% for number in range(0, org.numpeers) %}
  
-  {{org.peername}}{{number}}.{{org.domain}}:
+  {% set fq_peer_name = org.peername ~ number ~ '.' ~ org.domain %}
+  
+  {{fq_peer_name}}:
     build:
       context: .
       dockerfile: Dockerfile-peer
       args:
         peer_num: {{number}}
-        msp_dir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/{{peer_orgname}}.{{org.domain}}/peers/{{org.peername}}{{number}}.{{org.domain}}/msp
+        signcert_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["signcerts"]["certificates"][0].path}}
+        privatekey_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["keystore"]["keys"][0].path}}
+        cacert_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].path}}
     environment:
        - CORE_PEER_ID={{org.peername}}{{number}}.{{org.domain}}
        - CORE_PEER_ADDRESS={{org.peername}}{{number}}.{{org.domain}}:7051
@@ -84,9 +88,9 @@ services:
        - CORE_PEER_GOSSIP_ORGLEADER={{org.env.gossip_orgleader}}
        - CORE_PEER_GOSSIP_SKIPHANDSHAKE={{org.env.gossip_skiphandshake}}
        - CORE_PEER_PROFILE_ENABLED={{org.env.gossip_profile_enabled}}
-       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/{{org.peername}}{{number}}.{{org.domain}}-cert.pem
-       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/PEER_PRIVATEKEY_HERE
-       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/ca.{{fabric_compose.ca.domain}}-cert.pem
+       - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["signcerts"]["certificates"][0].filename}}
+       - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["keystore"]["keys"][0].filename}}
+       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].filename}}
     working_dir: {{org.workingdir}}
     ports:
     command: {{fabric_compose.peers.command}}

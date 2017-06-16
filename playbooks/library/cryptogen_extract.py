@@ -22,7 +22,7 @@ EXAMPLES = '''
   register: cryptokeys
 '''
 
-def descend(path):
+def collect_certifications_and_keys(path):
     retValue = {}
     certificates = []
     keys = []
@@ -31,13 +31,15 @@ def descend(path):
     for d in os.listdir(abs_path):
         abs_path_extended = os.path.join(abs_path, d)
         if os.path.isdir(abs_path_extended):
-           retValue[str(d)] = descend(abs_path_extended)
+           retValue[str(d)] = collect_certifications_and_keys(abs_path_extended)
         else:
             # Key?
             if isKey(d):
-                keys.append(abs_path_extended)
+                temp = { "path" : abs_path_extended, "filename": d }
+                keys.append( temp )
             else:
-                certificates.append(abs_path_extended)
+                temp = { "path" : abs_path_extended, "filename": d }
+                certificates.append(temp)
 
     # Any Keys?
     if len(keys) > 0:
@@ -65,12 +67,12 @@ def main():
     path = os.path.expanduser(module.params['path'])
     
     try:
-        # Does the path the user gave us exist?
+        # Does the path the caller gave us exist?
         if os.path.exists(path):
             # Is it a folder?
             if os.path.isdir(path) :
                 # Yes
-                module.exit_json(changed=True, keys=json.dumps(descend(path)))
+                module.exit_json(changed=True, certificates_and_keys=json.dumps(collect_certifications_and_keys(path)))
             else: 
                 module.fail_json(changed=False, msg='The path "' + str(os.path.abspath(path)) + '" is not a folder.')
         else:            

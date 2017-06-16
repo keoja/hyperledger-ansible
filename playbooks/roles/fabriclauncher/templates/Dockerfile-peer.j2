@@ -1,9 +1,13 @@
 FROM {{fabric_compose.peers.image}}
 
 ARG peer_num
-ARG msp_dir
+ARG signcert_path
+ARG privatekey_path
+ARG cacert_path
 
-ADD $msp_dir /etc/hyperledger/fabric/msp
+ADD $signcert_path /etc/hyperledger/fabric/msp/signcerts/
+ADD $privatekey_path /etc/hyperledger/fabric/msp/keystore/
+ADD $cacert_path /etc/hyperledger/fabric/msp/cacerts/
 
 LABEL peer_num=$peer_num
 

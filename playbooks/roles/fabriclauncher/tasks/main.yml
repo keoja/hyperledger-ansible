@@ -51,10 +51,9 @@
   when: is_unix
   tags: [cryptoconfig2]
   
-- debug: 
-    var: cryptokeys
+- set_fact: certificates_and_keys="{{ cryptokeys.certificates_and_keys }}"
   tags: [cryptoconfig2]
-  
+
 - name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
   template: src=configtx.yaml.j2
             dest={{fabriclauncher_config_dir}}/configtxgen.yaml
@@ -85,7 +84,7 @@
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost            
   when: is_unix         
-  tags: [docker,cryptoconfig]
+  tags: [docker,cryptoconfig2]
   
 - name: Generate Docker Compose file fabric-docker-compose.yml and install it in "{{fabriclauncher_config_dir}}/"
   template: src=fabric-docker-compose.yml.j2
