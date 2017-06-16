@@ -24,7 +24,7 @@
 # ./bin/cryptogen generate --config=./crypto-config.yaml
 
 - name: Retrieve the generated certificates and keys from ./crypto-config
-  hl_crypto_keys: path=~daford/Fabric/crypto-config
+  cryptogen_extract: path=~daford/Fabric/crypto-config
   register: cryptokeys
   delegate_to: localhost
   when: is_unix
