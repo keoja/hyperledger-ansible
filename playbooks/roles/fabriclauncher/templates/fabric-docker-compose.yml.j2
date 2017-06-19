@@ -14,8 +14,8 @@ services:
         privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["keys"][0].path}}
     environment:
       - FABRIC_CA_SERVER_TLS_ENABLED={{fabric_compose.ca.env.ca_server_tls_enabled}}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["certificates"][0].filename}}
       - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["keys"][0].filename}}
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["certificates"][0].filename}}
     ports:
     {% for port in fabric_compose.ca.ports %}
       - {{port}}
@@ -38,6 +38,7 @@ services:
         signcert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].path}}
         privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].path}}
         cacert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].path}}
+        admincert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["admincerts"]["certificates"][0].path}}
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -47,8 +48,8 @@ services:
       - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
       # TLS
       - ORDERER_GENERAL_TLS_ENABLED=true
-      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].filename}}
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/msp/signcerts/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].filename}}
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/msp/keystore/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].filename}}
       - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/msp/cacerts/{{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].filename}}]
     working_dir: {{fabric_compose.orderer.workingdir}}
     ports:

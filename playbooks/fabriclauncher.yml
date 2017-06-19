@@ -98,7 +98,7 @@
                        ports: {
                            p1: 7051,
                            p2: 7053,
-                           hostbase: 7051
+                           hostbase: 7055
                        },
                        organizations: [
                         {
@@ -109,7 +109,7 @@
                             localmspid: "Org1MSP",
                             vm_endpoint: "unix:///host/var/run/docker.sock",
                             vm_docker_hostconfig_networkmode: "fixturesv1_default",
-                            logging_level: "DEBUG",
+                            logging_level: "INFO",
                             tls_enabled: "true",
                             endorser_enabled: "true",
                             gossip_useleaderelection: "true",
