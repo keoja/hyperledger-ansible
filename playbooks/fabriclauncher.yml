@@ -79,7 +79,6 @@
                        image: "hyperledger/fabric-ca:{{dockertag}}",
                        env: {
                          ca_server_tls_enabled: "true",
-                         ca_server_tls_keyfile: "CA_PRIVATE_KEY"
                        },
                        ports: ["7054:7054"],
                        command: "sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.{{domain}}-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/CA_PRIVATE_KEY -b admin:adminpw -d'",
@@ -96,6 +95,11 @@
                      peers: { 
                        image: "hyperledger/fabric-peer:{{dockertag}}",
                        command: "peer node start --peer-defaultchain=false",
+                       ports: {
+                           p1: 7051,
+                           p2: 7053,
+                           hostbase: 7051
+                       },
                        organizations: [
                         {
                           numpeers: "{{num_peers}}",

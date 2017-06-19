@@ -4,26 +4,28 @@ version: "3"
 
 services:
 # CA
-  ca.{{fabric_compose.ca.domain}}:
+  {% set fq_ca_name = 'ca.' ~ fabric_compose.ca.domain %}
+  {{fq_ca_name}}:
     build:
       context: .
       dockerfile: Dockerfile-ca
       args:
-        ca_server_config_dir: {{fabriclauncher_config_dir}}/crypto-config/peerOrganizations/peer_orgname.{{fabric_compose.ca.domain}}/ca/
+        signcert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["certificates"][0].path}}
+        privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["keys"][0].path}}
     environment:
       - FABRIC_CA_SERVER_TLS_ENABLED={{fabric_compose.ca.env.ca_server_tls_enabled}}
-      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.{{fabric_compose.ca.domain}}-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{fabric_compose.ca.env.ca_server_tls_keyfile}}
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["certificates"][0].filename}}
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["keys"][0].filename}}
     ports:
     {% for port in fabric_compose.ca.ports %}
       - {{port}}
     {% endfor %}
-    command: {{fabric_compose.ca.command}}
+    command: sh -c 'fabric-ca-server start --ca.certfile /etc/hyperledger/fabric-ca-server-config/ca.{{domain}}-cert.pem --ca.keyfile /etc/hyperledger/fabric-ca-server-config/{{certificates_and_keys["ordererOrganizations"][fabric_compose.ca.domain]["ca"]["keys"][0].filename}} -b admin:adminpw -d'
     volumes:
      {% for volume in fabric_compose.ca.volumes %}
       - {{volume}}
     {% endfor %}
-    container_name: ca.{{fabric_compose.ca.domain}}
+    container_name: {{fq_ca_name}}
 
 # Orderer
 {# The template only handles one order. DAF #}
@@ -54,15 +56,13 @@ services:
       - {{port}}
     {% endfor %}
     command: {{fabric_compose.orderer.command}}
-    container_name: {{fabric_compose.orderer.name}}.{{fabric_compose.orderer.domain}}
+    container_name: {{fq_orderer_name}}
     depends_on: 
-      - ca.{{fabric_compose.ca.domain}}
+      - {{fq_ca_name}}
 
 # Peers
 {% for org in fabric_compose.peers.organizations %}
-
  {% for number in range(0, org.numpeers) %}
- 
   {% set fq_peer_name = org.peername ~ number ~ '.' ~ org.domain %}
   
   {{fq_peer_name}}:
@@ -75,11 +75,11 @@ services:
         privatekey_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["keystore"]["keys"][0].path}}
         cacert_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].path}}
     environment:
-       - CORE_PEER_ID={{org.peername}}{{number}}.{{org.domain}}
-       - CORE_PEER_ADDRESS={{org.peername}}{{number}}.{{org.domain}}:7051
-       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{org.peername}}{{number}}.{{org.domain}}:7051
+       - CORE_PEER_ID={{fq_peer_name}}
+       - CORE_PEER_ADDRESS={{fq_peer_name}}:{{fabric_compose.peers.ports.p1}}
+       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{fq_peer_name}}:{{fabric_compose.peers.ports.p1}}
        {% if number > 0 %}
-       - CORE_PEER_GOSSIP_BOOTSTREP={{org.peername}}0.{{org.domain}}
+       - CORE_PEER_GOSSIP_BOOTSTREP={{org.peername}}0.{{org.domain}}:{{fabric_compose.peers.ports.p1}}
        {% endif %}
        - CORE_PEER-LOCALMSPID={{org.env.localmspid}}
        - CORE_VM_ENDPOINT={{org.env.vm_endpoint}}
@@ -96,12 +96,14 @@ services:
        - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].filename}}
     working_dir: {{org.workingdir}}
     ports:
+      - {{fabric_compose.peers.ports.hostbase+number}}:{{fabric_compose.peers.ports.p1}}
+      - {{fabric_compose.peers.ports.hostbase+number+2}}:{{fabric_compose.peers.ports.p2}}
     command: {{fabric_compose.peers.command}}
     volumes:
        - /var/run/:/host/var/run/
-    container_name: {{org.peername}}{{number}}.{{org.domain}}
+    container_name: {{fq_peer_name}}
     depends_on:
-       - ca.{{fabric_compose.ca.domain}}
+       - {{fq_ca_name}}
        - {{fq_orderer_name}}
        {% if number > 0 %}
        {% for i in range(0, number) %}

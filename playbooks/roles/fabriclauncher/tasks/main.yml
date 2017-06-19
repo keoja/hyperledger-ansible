@@ -71,7 +71,7 @@
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost
   when: is_unix         
-  tags: [docker,cryptoconfig]
+  tags: [docker,cryptoconfig2]
 
 - name: Generate the orderer docker file.
   template: src=Dockerfile-orderer.j2
@@ -79,7 +79,7 @@
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost            
   when: is_unix         
-  tags: [docker,cryptoconfig]
+  tags: [docker,cryptoconfig2]
 
 - name: Generate the peer docker file.
   template: src=Dockerfile-peer.j2

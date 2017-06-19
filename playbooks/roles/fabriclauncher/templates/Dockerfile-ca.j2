@@ -1,5 +1,7 @@
 FROM {{fabric_compose.ca.image}}
 
-ARG ca_server_config_dir
+ARG signcert_path
+ARG privatekey_path
 
-ADD $ca_server_config_dir /etc/hyperledger/fabric-ca-server-config/
+ADD $signcert_path /etc/hyperledger/fabric-ca-server-config/
+ADD $privatekey_path /etc/hyperledger/fabric-ca-server-config/
