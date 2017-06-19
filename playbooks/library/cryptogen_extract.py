@@ -59,17 +59,6 @@ def isKey(fileName):
 def makeRelativePath( parent_path, path ):
     return os.path.relpath(path,parent_path)
         
-#def makePathsRelative(abs_path, certificates_and_keys):
-#    retValue = {}
-#    
-#    for k in certificates_and_keys:
-#        # Certificate?
-#        if k == "certificates" :
-#            retValue["certificates"] = makePathsRelative(certificates_and_keys[k])
-#        elif k == "keys":
-#            retValue["keys"] = makePathsRelative(certificates_and_keys[k])
-#        else retValue[k = makePathsRelative(abs_path,certificates_and_keys[k])
-                      
 def main():
 
     module = AnsibleModule(
