@@ -54,16 +54,34 @@
 - set_fact: certificates_and_keys="{{ cryptokeys.certificates_and_keys }}"
   tags: [cryptoconfig2]
 
-- debug: var=certificates_and_keys
-  tags: [cryptoconfig2]
+#- debug: var=certificates_and_keys
+#  tags: [cryptoconfig2]
   
 - name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
   template: src=configtx.yaml.j2
             dest={{fabriclauncher_config_dir}}/configtxgen.yaml
             owner={{user}} group={{group}} mode=644
+  register: configtxgen
   delegate_to: localhost
   when: is_unix         
-  tags: [configtxgen]
+  tags: [configtxgen3]
+
+- name: Test to see if the Orderer Genesis Block {{fabriclauncher_config_dir}}/orderer.block exists
+  stat: path={{fabriclauncher_config_dir}}/orderer.block
+  register: ordererblock
+  ignore_errors: true
+  changed_when: ordererblock.changed
+  delegate_to: localhost
+  when: is_unix
+  tags: [configtxgen3]
+
+- name: Generate the Orderer Genesis Block
+  command: chdir={{fabriclauncher_config_dir}}
+           /home/daford/bin/configtxgen -profile {{fabric_compose.orderer.genesisprofile}} -outputBlock orderer.block
+  become_user: "{{user}}"
+  delegate_to: localhost
+  when: configtxgen.changed or ordererblock.stat.exists == False
+  tags: [configtxgen3]
 
 - name: Generate the ca docker file.
   template: src=Dockerfile-ca.j2

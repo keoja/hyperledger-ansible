@@ -85,6 +85,7 @@
                        volumes: ["./fabricca/tlsOrg1:/etc/hyperledger/fabric-ca-server"]
                      },
                      orderer: {
+                       genesisprofile: "OneOrgGenesis",
                        name: "orderer",
                        domain: "{{domain}}",
                        image: "hyperledger/fabric-orderer:{{dockertag}}",
