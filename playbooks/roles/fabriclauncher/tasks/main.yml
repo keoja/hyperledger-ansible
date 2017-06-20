@@ -57,9 +57,9 @@
 #- debug: var=certificates_and_keys
 #  tags: [cryptoconfig2]
   
-- name: Generate the file {{fabriclauncher_config_dir}}/configtxgen.yaml
+- name: Generate the file {{fabriclauncher_config_dir}}/configtx.yaml
   template: src=configtx.yaml.j2
-            dest={{fabriclauncher_config_dir}}/configtxgen.yaml
+            dest={{fabriclauncher_config_dir}}/configtx.yaml
             owner={{user}} group={{group}} mode=644
   register: configtxgen
   delegate_to: localhost
@@ -78,6 +78,8 @@
 - name: Generate the Orderer Genesis Block
   command: chdir={{fabriclauncher_config_dir}}
            /home/daford/bin/configtxgen -profile {{fabric_compose.orderer.genesisprofile}} -outputBlock orderer.block
+  environment:
+      FABRIC_CFG_PATH: "{{fabriclauncher_config_dir}}"
   become_user: "{{user}}"
   delegate_to: localhost
   when: configtxgen.changed or ordererblock.stat.exists == False

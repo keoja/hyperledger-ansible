@@ -85,7 +85,7 @@ Organizations:
   - &{{org.tag}}
       Name: {{org.name}}
       ID: {{org.id}}
-      msp_dir: {{org.msp_dir}}
+      MSPDir: {{org.msp_dir}}
       BCCSP:
         Default: SW
         SW:
@@ -115,11 +115,12 @@ Orderer: &{{ordererdefaults.tag}}
        {% for addr in ordererdefaults.addresses %}
        - {{addr}}
        {% endfor %}
-    BatchTimeout: {{ordererdefaults.batch.timeout}}							# Time the Orderer should wait before creating a batch.
+    # The time the Orderer should wait before creating a batch.
+    BatchTimeout: {{ordererdefaults.batch.timeout}}		
     BatchSize:
-       MaxMessageCount: {{ordererdefaults.batch.maxmsgcount}}				# Max. num. messages in a batch.
-       AbsoluteMaxBytes: {{ordererdefaults.batch.maxbytes}}		# Max. size of a batch.
-       PerferredMaxBytes: {{ordererdefaults.batch.preferredmaxbytes}}	# Preferred size of a batch.
+       MaxMessageCount: {{ordererdefaults.batch.maxmsgcount}}	# Max. num. messages in a batch.
+       AbsoluteMaxBytes: {{ordererdefaults.batch.maxbytes}}	# Max. size of a batch.
+       PerferredMaxBytes: {{ordererdefaults.batch.preferredmaxbytes}} # Preferred size of a batch.
     MaxChanels: {{ordererdefaults.maxchannels}}		# Max. num. channels.  0 -> No Limit.
     Kafka:
       Brokers:
