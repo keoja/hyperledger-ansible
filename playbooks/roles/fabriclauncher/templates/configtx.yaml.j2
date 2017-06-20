@@ -39,37 +39,37 @@ Profiles:
   {% for profile in profiles %}
   
   {{profile.name}}:
-	  {% if profile.orderer is defined %}
-	  Orderer:
-	     <<: *{{profile.orderer.defaultstag}}
-	     {% if profile.orderer.organizations is defined %}
-	     Organizations:
-	         {% for org in profile.orderer.organizations %}
-	         - *{{org}}
-	         {% endfor %}
-	     {% endif %}
-	  {% endif %}
-	  {% if profile.consortiums is defined %}
-	  Consortiums:
-	    {% for consortium in profile.consortiums %}
-	    {{consortium.name}}:
-	       {% if consortium.organizations is defined %}
-	       Organizations:
-	         {% for organization in consortium.organizations %}
-	           - *{{organization}}
-	         {% endfor %}
-	       {% endif %}
-	    {% endfor %}
-	  {% endif %}
-	  {% if profile.consortium is defined %}
-	  Consortium: {{profile.consortium}}
-	  Application:
-	     <<: *{{profile.application.tag}}
-	     Organizations:
-	        {% for org in profile.application.organizations %}
-	          - *{{org}}
-	        {% endfor %}
-	  {% endif %}
+      {% if profile.orderer is defined %}
+      Orderer:
+         <<: *{{profile.orderer.defaultstag}}
+         {% if profile.orderer.organizations is defined %}
+         Organizations:
+             {% for org in profile.orderer.organizations %}
+             - *{{org}}
+             {% endfor %}
+         {% endif %}
+      {% endif %}
+      {% if profile.consortiums is defined %}
+      Consortiums:
+        {% for consortium in profile.consortiums %}
+        {{consortium.name}}:
+           {% if consortium.organizations is defined %}
+           Organizations:
+             {% for organization in consortium.organizations %}
+               - *{{organization}}
+             {% endfor %}
+           {% endif %}
+        {% endfor %}
+      {% endif %}
+      {% if profile.consortium is defined %}
+      Consortium: {{profile.consortium}}
+      Application:
+         <<: *{{profile.application.tag}}
+         Organizations:
+            {% for org in profile.application.organizations %}
+              - *{{org}}
+            {% endfor %}
+      {% endif %}
   {% endfor %}
 
 #------------------------------------------------------------------------------
@@ -93,13 +93,13 @@ Organizations:
            Security: 256
            FileKeyStore:
                KeyStore:
-	  {% if org.anchorpeers is defined %}
+      {% if org.anchorpeers is defined %}
       AnchorPeers:
         {% for peer in org.anchorpeers %}
-        -HOST: {{peer.host}}
-         Port: {{peer.port}}
-	    {% endfor %}
-	  {% endif %}
+        - HOST: {{peer.host}}
+          Port: {{peer.port}}
+        {% endfor %}
+      {% endif %}
   {% endfor %}
 
 #------------------------------------------------------------------------------
@@ -110,18 +110,18 @@ Organizations:
   
 Orderer: &{{ordererdefaults.tag}}
     
-    OrdererType: {{ordererdefaults.type}}  	# "solo" or "kafka"
+    OrdererType: {{ordererdefaults.type}}      # "solo" or "kafka"
     Addresses:
        {% for addr in ordererdefaults.addresses %}
        - {{addr}}
        {% endfor %}
     # The time the Orderer should wait before creating a batch.
-    BatchTimeout: {{ordererdefaults.batch.timeout}}		
+    BatchTimeout: {{ordererdefaults.batch.timeout}}        
     BatchSize:
-       MaxMessageCount: {{ordererdefaults.batch.maxmsgcount}}	# Max. num. messages in a batch.
-       AbsoluteMaxBytes: {{ordererdefaults.batch.maxbytes}}	# Max. size of a batch.
-       PerferredMaxBytes: {{ordererdefaults.batch.preferredmaxbytes}} # Preferred size of a batch.
-    MaxChanels: {{ordererdefaults.maxchannels}}		# Max. num. channels.  0 -> No Limit.
+       MaxMessageCount: {{ordererdefaults.batch.maxmsgcount}}    # Max. num. messages in a batch.
+       AbsoluteMaxBytes: {{ordererdefaults.batch.maxbytes}}    # Max. size of a batch.
+       PreferredMaxBytes: {{ordererdefaults.batch.preferredmaxbytes}} # Preferred size of a batch.
+    MaxChannels: {{ordererdefaults.maxchannels}}        # Max. num. channels.  0 -> No Limit.
     Kafka:
       Brokers:
        {% for broker in ordererdefaults.kafka.brokers %}
@@ -141,5 +141,5 @@ Orderer: &{{ordererdefaults.tag}}
 #------------------------------------------------------------------------------
 
 Application: &{{applicationdefaults.tag}}
-   Organizations:	# Participants on the application side of the network.
+   Organizations:    # Participants on the application side of the network.
    
