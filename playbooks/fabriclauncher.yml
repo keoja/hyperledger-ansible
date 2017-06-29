@@ -15,7 +15,7 @@
     - peer_orgname: "{{orderer_org_name}}"
     - num_peers: 2
     - domain:  "keoja.com"
-    - dockertag: "x86_64-1.0.0-beta"
+    - dockertag: "x86_64-1.0.0-rc1"
     # Variables for crypto-config.yaml.j2
     - fabric_crypto_config: {ordererorgs: [ 
                                 { name: "{{orderer_org_name}}", domain: "{{domain}}", 
