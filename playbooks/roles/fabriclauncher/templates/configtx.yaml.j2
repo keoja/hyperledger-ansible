@@ -86,6 +86,7 @@ Organizations:
       Name: {{org.name}}
       ID: {{org.id}}
       MSPDir: {{org.msp_dir}}
+      {% if org.bccsp is defined %}
       BCCSP:
         Default: SW
         SW:
@@ -93,6 +94,7 @@ Organizations:
            Security: 256
            FileKeyStore:
                KeyStore:
+      {% endif %}
       {% if org.anchorpeers is defined %}
       AnchorPeers:
         {% for peer in org.anchorpeers %}
