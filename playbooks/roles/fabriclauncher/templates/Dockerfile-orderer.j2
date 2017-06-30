@@ -1,13 +1,10 @@
 FROM {{fabric_compose.orderer.image}}
 
 ARG genesis_file_path
-ARG signcert_path
-ARG privatekey_path
-ARG cacert_path
-ARG admincert_path
+ARG msp_path
+ARG tls_path
 
 ADD $genesis_file_path /var/hyperledger/orderer/
-ADD $signcert_path /var/hyperledger/orderer/msp/signcerts/
-ADD $privatekey_path /var/hyperledger/orderer/msp/keystore/
-ADD $cacert_path /var/hyperledger/orderer/msp/cacerts/
-ADD $admincert_path /var/hyperledger/orderer/msp/admincerts/
+ADD $msp_path /var/hyperledger/orderer/msp/
+ADD $tls_path /var/hyperledger/orderer/tls/
+

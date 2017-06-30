@@ -28,7 +28,7 @@ services:
     container_name: {{fq_ca_name}}
 
 # Orderer
-{# The template only handles one order. DAF #}
+{# The template only handles one orderer. DAF #}
   {% set fq_orderer_name = fabric_compose.orderer.name~ '0' ~ '.' ~ fabric_compose.orderer.domain %}
   {{fq_orderer_name}}:
     build:
@@ -36,10 +36,8 @@ services:
       dockerfile: Dockerfile-orderer
       args:
         genesis_file_path: orderer.block
-        signcert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].path}}
-        privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].path}}
-        cacert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].path}}
-        admincert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["admincerts"]["certificates"][0].path}}
+        msp_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["path"]}}/
+        tls_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["tls"]["path"]}}/
     environment:
       - ORDERER_GENERAL_LOGLEVEL=debug
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
@@ -73,26 +71,28 @@ services:
       dockerfile: Dockerfile-peer
       args:
         peer_num: {{number}}
-        signcert_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["signcerts"]["certificates"][0].path}}
-        privatekey_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["keystore"]["keys"][0].path}}
-        cacert_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].path}}
+        msp_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"].path}}/
+        tls_path: {{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["tls"].path}}/
     environment:
+       - CORE_LOGGING_LEVEL={{org.env.logging_level}}
        - CORE_PEER_ID={{fq_peer_name}}
        - CORE_PEER_ADDRESS={{fq_peer_name}}:{{fabric_compose.peers.ports.p1}}
-       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{fq_peer_name}}:{{fabric_compose.peers.ports.p1}}
-       {% if number > 0 %}
-       - CORE_PEER_GOSSIP_BOOTSTREP={{org.peername}}0.{{org.domain}}:{{fabric_compose.peers.ports.p1}}
-       {% endif %}
+       - CORE_PEER_PROFILE_ENABLED={{org.env.gossip_profile_enabled}}
        - CORE_PEER-LOCALMSPID={{org.env.localmspid}}
+       - CORE_PEER_ENDORSER_ENABLED={{org.env.endorser_enabled}}
        - CORE_VM_ENDPOINT={{org.env.vm_endpoint}}
        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE={{org.env.vm_docker_hostconfig_networkmode}}
-       - CORE_LOGGING_LEVEL={{org.env.logging_level}}
-       - CORE_PEER_TLS_ENABLED={{org.env.tls_enabled}}
-       - CORE_PEER_ENDORSER_ENABLED={{org.env.endorser_enabled}}
+       # GOSSIP
+       - CORE_PEER_GOSSIP_EXTERNALENDPOINT={{fq_peer_name}}:{{fabric_compose.peers.ports.p1}}
+       {% if number > 0 %}
+       - CORE_PEER_GOSSIP_BOOTSTRAP={{org.peername}}0.{{org.domain}}:{{fabric_compose.peers.ports.p1}}
+       {% endif %}
        - CORE_PEER_GOSSIP_USELEADERELECTION={{org.env.gossip_useleaderelection}}
        - CORE_PEER_GOSSIP_ORGLEADER={{org.env.gossip_orgleader}}
        - CORE_PEER_GOSSIP_SKIPHANDSHAKE={{org.env.gossip_skiphandshake}}
-       - CORE_PEER_PROFILE_ENABLED={{org.env.gossip_profile_enabled}}
+
+       # TLS
+       - CORE_PEER_TLS_ENABLED={{org.env.tls_enabled}}
        - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/msp/signcerts/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["signcerts"]["certificates"][0].filename}}
        - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/msp/keystore/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["keystore"]["keys"][0].filename}}
        - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/msp/cacerts/{{certificates_and_keys["peerOrganizations"][org.domain]["peers"][fq_peer_name]["msp"]["cacerts"]["certificates"][0].filename}}
