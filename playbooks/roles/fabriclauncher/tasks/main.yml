@@ -19,13 +19,13 @@
   register: cc
   delegate_to: localhost
   when: is_unix         
-  tags: [cryptoconfig2]
+  tags: [cryptoconfig]
   
 - name: Remove the cryptogen output folder {{fabriclauncher_config_dir}}/crypto-config
   file: path={{fabriclauncher_config_dir}}/crypto-config state=absent
   delegate_to: localhost
   when: cc.changed
-  tags: [cryptoconfig2]  
+  tags: [cryptoconfig]  
 
 - name: Test to see if the cryptogen output folder {{fabriclauncher_config_dir}}/crypto-config exists
   stat: path={{fabriclauncher_config_dir}}/crypto-config
@@ -34,7 +34,7 @@
   changed_when: folder.changed
   delegate_to: localhost
   when: is_unix
-  tags: [cryptoconfig2]
+  tags: [cryptoconfig]
 
 - name: Generate the certificates and keys from {{fabriclauncher_config_dir}}/crypto-config.yaml
   command: chdir={{fabriclauncher_config_dir}}
@@ -42,20 +42,20 @@
   become_user: "{{user}}"
   delegate_to: localhost
   when: folder.stat.exists == False
-  tags: [cryptoconfig2]
+  tags: [cryptoconfig]
   
 - name: Retrieve the generated certificates and keys from {{fabriclauncher_config_dir}}/crypto-config
   cryptogen_extract: path={{fabriclauncher_config_dir}}/crypto-config
   register: cryptokeys
   delegate_to: localhost
   when: is_unix
-  tags: [cryptoconfig2]
+  tags: [cryptoconfig]
   
 - set_fact: certificates_and_keys="{{ cryptokeys.certificates_and_keys }}"
-  tags: [cryptoconfig2]
+  tags: [cryptoconfig]
 
 #- debug: var=certificates_and_keys
-#  tags: [cryptoconfig2]
+#  tags: [cryptoconfig]
   
 - name: Generate the file {{fabriclauncher_config_dir}}/configtx.yaml
   template: src=configtx.yaml.j2
@@ -64,7 +64,7 @@
   register: configtxgen
   delegate_to: localhost
   when: is_unix         
-  tags: [configtxgen3]
+  tags: [configtxgen]
 
 - name: Test to see if the Orderer Genesis Block {{fabriclauncher_config_dir}}/orderer.block exists
   stat: path={{fabriclauncher_config_dir}}/orderer.block
@@ -73,9 +73,9 @@
   changed_when: ordererblock.changed
   delegate_to: localhost
   when: is_unix
-  tags: [configtxgen3]
+  tags: [configtxgen]
 
-- name: Generate the Orderer Genesis Block
+- name: Generate the Orderer Genesis Block in and install it in "{{fabriclauncher_config_dir}}/orderer.block"
   command: chdir={{fabriclauncher_config_dir}}
            /home/daford/bin/configtxgen -profile {{fabric_compose.orderer.genesisprofile}} -outputBlock orderer.block
   environment:
@@ -83,31 +83,31 @@
   become_user: "{{user}}"
   delegate_to: localhost
   when: configtxgen.changed or ordererblock.stat.exists == False
-  tags: [configtxgen3]
+  tags: [configtxgen]
 
-- name: Generate the ca docker file.
+- name: Generate the ca docker file and install it in "{{fabriclauncher_config_dir}}/".
   template: src=Dockerfile-ca.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-ca
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost
   when: is_unix         
-  tags: [docker,cryptoconfig2]
+  tags: [docker,cryptoconfig]
 
-- name: Generate the orderer docker file.
+- name: Generate the orderer docker file and install it in "{{fabriclauncher_config_dir}}/".
   template: src=Dockerfile-orderer.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-orderer
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost            
   when: is_unix         
-  tags: [docker,cryptoconfig2]
+  tags: [docker,cryptoconfig]
 
-- name: Generate the peer docker file.
+- name: Generate the peer docker file and install it in "{{fabriclauncher_config_dir}}/".
   template: src=Dockerfile-peer.j2
             dest={{fabriclauncher_config_dir}}/Dockerfile-peer
             owner={{user}} group={{group}} mode=644
   delegate_to: localhost            
   when: is_unix         
-  tags: [docker,cryptoconfig2]
+  tags: [docker,cryptoconfig]
   
 - name: Generate Docker Compose file fabric-docker-compose.yml and install it in "{{fabriclauncher_config_dir}}/"
   template: src=fabric-docker-compose.yml.j2
@@ -115,7 +115,7 @@
         owner={{user}} group={{group}} mode=644
   delegate_to: localhost        
   when: is_unix
-  tags: [docker,cryptoconfig2]  
+  tags: [docker,cryptoconfig]  
   
   
 # Docker Compose
