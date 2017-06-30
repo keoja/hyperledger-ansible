@@ -29,7 +29,7 @@ services:
 
 # Orderer
 {# The template only handles one orderer. DAF #}
-  {% set fq_orderer_name = fabric_compose.orderer.name~ '0' ~ '.' ~ fabric_compose.orderer.domain %}
+  {% set fq_orderer_name = fabric_compose.orderer.name~ '.' ~ fabric_compose.orderer.domain %}
   {{fq_orderer_name}}:
     build:
       context: .
