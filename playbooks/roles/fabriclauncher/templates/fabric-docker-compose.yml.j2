@@ -35,6 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile-orderer
       args:
+        block_path: orderer.block
         signcert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["signcerts"]["certificates"][0].path}}
         privatekey_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["keystore"]["keys"][0].path}}
         cacert_path: {{certificates_and_keys["ordererOrganizations"][fabric_compose.orderer.domain]["orderers"][fq_orderer_name]["msp"]["cacerts"]["certificates"][0].path}}

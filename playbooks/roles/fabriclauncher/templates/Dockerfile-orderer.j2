@@ -1,12 +1,12 @@
 FROM {{fabric_compose.orderer.image}}
 
+ARG block_path
 ARG signcert_path
 ARG privatekey_path
 ARG cacert_path
 ARG admincert_path
 
-#ADD orderer.block /var/hyperledger/orderer/
-
+ADD $block_path /var/hyperledger/orderer/
 ADD $signcert_path /var/hyperledger/orderer/msp/signcerts/
 ADD $privatekey_path /var/hyperledger/orderer/msp/keystore/
 ADD $cacert_path /var/hyperledger/orderer/msp/cacerts/
